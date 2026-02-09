@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import multer from 'multer';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,18 +12,39 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FILES_DIR = process.env.FILES_DIR || path.join(__dirname, '..', 'files');
 const STATIC_DIR = process.env.STATIC_DIR || path.join(__dirname, '..', 'client', 'dist');
 
+const ALLOWED_EXT = ['.md', '.txt'];
+function isAllowedFile(name) {
+  const ext = path.extname(name).toLowerCase();
+  return ALLOWED_EXT.includes(ext);
+}
+
+const storage = multer.diskStorage({
+  destination: async (_req, _file, cb) => {
+    await fs.mkdir(FILES_DIR, { recursive: true });
+    cb(null, FILES_DIR);
+  },
+  filename: (_req, file, cb) => cb(null, path.basename(file.originalname)),
+});
+const upload = multer({
+  storage,
+  fileFilter: (_req, file, cb) => {
+    if (isAllowedFile(file.originalname)) cb(null, true);
+    else cb(new Error('Seuls les fichiers .txt et .md sont acceptés'), false);
+  },
+});
+
 const app = express();
 app.use(cors());
 
-async function getMarkdownFiles(dir, base = '') {
+async function getListedFiles(dir, base = '') {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
     const rel = path.join(base, entry.name);
     if (entry.isDirectory()) {
-      const sub = await getMarkdownFiles(path.join(dir, entry.name), rel);
+      const sub = await getListedFiles(path.join(dir, entry.name), rel);
       files.push(...sub);
-    } else if (entry.name.toLowerCase().endsWith('.md')) {
+    } else if (isAllowedFile(entry.name)) {
       files.push({ path: rel.replace(/\\/g, '/'), name: entry.name });
     }
   }
@@ -37,12 +59,25 @@ function safePath(relativePath) {
 app.get('/api/files', async (req, res) => {
   try {
     await fs.mkdir(FILES_DIR, { recursive: true });
-    const files = await getMarkdownFiles(FILES_DIR);
+    const files = await getListedFiles(FILES_DIR);
     res.json(files);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
+});
+
+app.post('/api/upload', (req, res) => {
+  upload.array('files', 20)(req, res, (err) => {
+    if (err) {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ error: err.message });
+      }
+      return res.status(400).json({ error: err.message || 'Upload refusé' });
+    }
+    const uploaded = (req.files || []).map((f) => ({ name: f.filename, path: f.filename }));
+    res.json({ ok: true, files: uploaded });
+  });
 });
 
 app.get('/api/files/*', async (req, res) => {

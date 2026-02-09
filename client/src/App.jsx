@@ -3,18 +3,67 @@ import ReactMarkdown from 'react-markdown';
 
 const API = '/api';
 
+function isAllowedFile(name) {
+  const n = name.toLowerCase();
+  return n.endsWith('.md') || n.endsWith('.txt');
+}
+
 export default function App() {
   const [files, setFiles] = useState([]);
   const [currentPath, setCurrentPath] = useState(null);
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
   const fetchFiles = () => {
     fetch(`${API}/files`)
       .then((r) => r.json())
       .then(setFiles)
       .catch((e) => setError(e.message));
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDragging) setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!e.currentTarget.contains(e.relatedTarget)) setIsDragging(false);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    setUploadError(null);
+    const items = Array.from(e.dataTransfer.files);
+    const toUpload = items.filter((f) => isAllowedFile(f.name));
+    if (toUpload.length === 0) {
+      setUploadError('Seuls les fichiers .txt et .md sont acceptés.');
+      return;
+    }
+    const form = new FormData();
+    toUpload.forEach((f) => form.append('files', f));
+    setUploading(true);
+    try {
+      const r = await fetch(`${API}/upload`, { method: 'POST', body: form });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setUploadError(data.error || 'Erreur lors de la copie des fichiers.');
+        return;
+      }
+      fetchFiles();
+    } catch (err) {
+      setUploadError(err.message || 'Erreur réseau.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   useEffect(() => {
@@ -43,17 +92,28 @@ export default function App() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
+      <aside
+        className={`sidebar ${isDragging ? 'sidebar--drag-over' : ''}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <div className="sidebar-header">
           <h2>Fichiers</h2>
           <button type="button" className="btn-refresh" onClick={fetchFiles} title="Actualiser la liste">
             Actualiser
           </button>
         </div>
+        {uploadError && (
+          <div className="sidebar-upload-error">{uploadError}</div>
+        )}
+        {uploading && (
+          <div className="sidebar-uploading">Copie en cours…</div>
+        )}
         <ul className="file-list">
-          {files.length === 0 && !error && (
-            <li style={{ padding: '0.5rem 1rem', color: 'var(--muted)' }}>
-              Aucun fichier .md dans le dossier files
+          {files.length === 0 && !error && !uploading && (
+            <li className="file-list-empty">
+              Aucun fichier. Glissez-déposez des fichiers .txt ou .md ici.
             </li>
           )}
           {files.map((f) => (

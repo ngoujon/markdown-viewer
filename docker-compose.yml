@@ -1,0 +1,13 @@
+services:
+  markdown-viewer:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      # Montez votre dossier de fichiers markdown ici
+      - ./files:/app/files:ro
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - FILES_DIR=/app/files
+      - STATIC_DIR=/app/client/dist

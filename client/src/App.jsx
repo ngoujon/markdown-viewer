@@ -8,7 +8,6 @@ export default function App() {
   const [currentPath, setCurrentPath] = useState(null);
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
-  const [pdfLoading, setPdfLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchFiles = () => {
@@ -42,43 +41,6 @@ export default function App() {
       .finally(() => setLoading(false));
   }, [currentPath]);
 
-  const handlePrint = () => {
-    if (!currentPath) return;
-    setPdfLoading(true);
-    setError(null);
-    fetch(`${API}/export-pdf?path=${encodeURIComponent(currentPath)}`)
-      .then((r) => {
-        if (!r.ok) throw new Error('Export impossible');
-        return r.arrayBuffer();
-      })
-      .then((arrayBuffer) => {
-        if (arrayBuffer.byteLength === 0) throw new Error('PDF vide');
-        const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        const printWindow = window.open(url, '_blank', 'noopener');
-        if (printWindow) {
-          let printed = false;
-          const doPrint = () => {
-            if (printed) return;
-            printed = true;
-            printWindow.print();
-            printWindow.onafterprint = () => {
-              printWindow.close();
-              URL.revokeObjectURL(url);
-            };
-          };
-          printWindow.onload = doPrint;
-          // Fallback : le viewer PDF peut ne pas déclencher onload
-          setTimeout(doPrint, 1500);
-        } else {
-          URL.revokeObjectURL(url);
-          setError('Autorisez les pop-ups pour ouvrir l\'impression PDF.');
-        }
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setPdfLoading(false));
-  };
-
   return (
     <div className="app">
       <aside className="sidebar">
@@ -111,19 +73,6 @@ export default function App() {
         </ul>
       </aside>
       <div className="viewer-wrap">
-        <div className="toolbar">
-          <button
-            type="button"
-            onClick={handlePrint}
-            disabled={!currentPath || pdfLoading}
-            title="Décochez « En-têtes et pieds de page » dans la fenêtre d'impression pour ne pas afficher l'URL, la date et les numéros de page."
-          >
-            {pdfLoading ? 'Préparation…' : 'Imprimer'}
-          </button>
-          <span className="toolbar-note">
-            Dans la fenêtre d'impression, décochez « En-têtes et pieds de page » si vous ne voulez pas l'URL, la date ou les numéros de page.
-          </span>
-        </div>
         <div className="viewer">
           {error && <div className="error">{error}</div>}
           {loading && <div className="empty">Chargement…</div>}

@@ -1,0 +1,23 @@
+---
+description: Commit automatique après chaque modification demandée par l'utilisateur
+alwaysApply: true
+---
+
+# Commit automatique après modifications
+
+Après avoir terminé les modifications demandées par l'utilisateur (et uniquement quand des fichiers ont effectivement été modifiés) :
+
+1. **Stager** tous les fichiers modifiés : `git add` (fichiers concernés ou `git add -A` si pertinent).
+2. **Commiter** avec un message clair et descriptif en français qui résume ce qui a été fait.
+
+## Comportement
+
+- Exécuter le commit **à la fin** de la réponse, une fois toutes les modifications appliquées.
+- Message de commit : court, en français, impératif (ex. « Ajouter la règle auto-commit », « Corriger le bug sur le rendu Markdown »).
+- Ne pas commiter si aucune modification n’a été effectuée.
+- En cas de conflits ou d’erreur Git, indiquer à l’utilisateur ce qui s’est passé sans bloquer la réponse.
+
+## Exemple
+
+Après avoir ajouté une fonctionnalité :  
+`git add -A && git commit -m "Ajouter le support des tableaux dans le rendu Markdown"`

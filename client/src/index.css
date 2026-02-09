@@ -170,6 +170,38 @@ body {
   min-width: 0;
 }
 
+.doc-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding: 0.6rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.doc-header-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.doc-header-meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.doc-header-label {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.doc-header-sep {
+  color: var(--border);
+}
+
 .toolbar {
   display: flex;
   align-items: center;
@@ -322,7 +354,7 @@ body {
     color: var(--print-text);
   }
 
-  .sidebar, .toolbar {
+  .sidebar, .toolbar, .doc-header {
     display: none !important;
   }
 

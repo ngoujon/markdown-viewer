@@ -109,6 +109,19 @@ export default function App() {
       .finally(() => setLoading(false));
   }, [currentPath]);
 
+  const currentFile = files.find((f) => f.path === currentPath);
+  const formatDate = (iso) => {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleDateString('fr-FR', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      });
+    } catch {
+      return iso;
+    }
+  };
+
   return (
     <div className="app">
       <aside
@@ -161,6 +174,16 @@ export default function App() {
         </ul>
       </aside>
       <div className="viewer-wrap">
+        {currentPath && (
+          <header className="doc-header">
+            <span className="doc-header-name">{currentFile?.name ?? currentPath}</span>
+            <span className="doc-header-meta">
+              <span className="doc-header-label">Créé le</span> {formatDate(currentFile?.createdAt)}
+              <span className="doc-header-sep"> · </span>
+              <span className="doc-header-label">Modifié le</span> {formatDate(currentFile?.modifiedAt)}
+            </span>
+          </header>
+        )}
         <div className="viewer">
           {error && <div className="error">{error}</div>}
           {loading && <div className="empty">Chargement…</div>}

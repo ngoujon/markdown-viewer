@@ -45,7 +45,16 @@ async function getListedFiles(dir, base = '') {
       const sub = await getListedFiles(path.join(dir, entry.name), rel);
       files.push(...sub);
     } else if (isAllowedFile(entry.name)) {
-      files.push({ path: rel.replace(/\\/g, '/'), name: entry.name });
+      const fullPath = path.join(dir, entry.name);
+      const stat = await fs.stat(fullPath);
+      const createdAt = (stat.birthtime && stat.birthtime.getTime() > 0 ? stat.birthtime : stat.ctime).toISOString();
+      const modifiedAt = stat.mtime.toISOString();
+      files.push({
+        path: rel.replace(/\\/g, '/'),
+        name: entry.name,
+        createdAt,
+        modifiedAt,
+      });
     }
   }
   return files.sort((a, b) => a.path.localeCompare(b.path));

@@ -54,6 +54,7 @@ async function getListedFiles(dir, base = '') {
         name: entry.name,
         createdAt,
         modifiedAt,
+        size: stat.size,
       });
     }
   }

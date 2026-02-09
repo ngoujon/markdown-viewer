@@ -122,6 +122,15 @@ export default function App() {
     }
   };
 
+  const formatSize = (bytes) => {
+    if (bytes == null || bytes === undefined) return '—';
+    const n = Number(bytes);
+    if (Number.isNaN(n) || n < 0) return '—';
+    if (n >= 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(2)} Mo`;
+    if (n >= 1024) return `${(n / 1024).toFixed(2)} Ko`;
+    return `${n} octet${n !== 1 ? 's' : ''}`;
+  };
+
   return (
     <div className="app">
       <aside
@@ -178,6 +187,8 @@ export default function App() {
           <header className="doc-header">
             <span className="doc-header-name">{currentFile?.name ?? currentPath}</span>
             <span className="doc-header-meta">
+              <span className="doc-header-label">Taille</span> {formatSize(currentFile?.size)}
+              <span className="doc-header-sep"> · </span>
               <span className="doc-header-label">Créé le</span> {formatDate(currentFile?.createdAt)}
               <span className="doc-header-sep"> · </span>
               <span className="doc-header-label">Modifié le</span> {formatDate(currentFile?.modifiedAt)}

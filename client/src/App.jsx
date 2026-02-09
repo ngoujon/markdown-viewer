@@ -37,6 +37,25 @@ export default function App() {
     if (!e.currentTarget.contains(e.relatedTarget)) setIsDragging(false);
   };
 
+  const handleDelete = async (filePath, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!window.confirm(`Supprimer le fichier « ${filePath.split('/').pop()} » ?`)) return;
+    try {
+      const r = await fetch(`${API}/files/${encodeURIComponent(filePath)}`, { method: 'DELETE' });
+      if (!r.ok) {
+        const data = await r.json().catch(() => ({}));
+        setUploadError(data.error || 'Impossible de supprimer le fichier.');
+        return;
+      }
+      if (currentPath === filePath) setCurrentPath(null);
+      setUploadError(null);
+      fetchFiles();
+    } catch (err) {
+      setUploadError(err.message || 'Erreur réseau.');
+    }
+  };
+
   const handleDrop = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -117,7 +136,7 @@ export default function App() {
             </li>
           )}
           {files.map((f) => (
-            <li key={f.path}>
+            <li key={f.path} className="file-list-item">
               <a
                 href="#"
                 className={currentPath === f.path ? 'active' : ''}
@@ -128,6 +147,15 @@ export default function App() {
               >
                 {f.name}
               </a>
+              <button
+                type="button"
+                className="file-list-delete"
+                title="Supprimer ce fichier"
+                onClick={(e) => handleDelete(f.path, e)}
+                aria-label={`Supprimer ${f.name}`}
+              >
+                ×
+              </button>
             </li>
           ))}
         </ul>

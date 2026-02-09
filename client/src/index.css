@@ -113,6 +113,37 @@ body {
   margin: 0;
 }
 
+.file-list-item {
+  display: flex;
+  align-items: stretch;
+}
+
+.file-list-item a {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-list-delete {
+  flex-shrink: 0;
+  width: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-list-delete:hover {
+  color: #f7768e;
+  background: rgba(247, 118, 142, 0.12);
+}
+
 .file-list a {
   display: block;
   padding: 0.5rem 1rem;

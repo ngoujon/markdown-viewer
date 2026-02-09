@@ -99,6 +99,29 @@ app.get('/api/files/*', async (req, res) => {
   }
 });
 
+app.delete('/api/files/*', async (req, res) => {
+  const relativePath = req.params[0];
+  if (!relativePath || relativePath.includes('..')) {
+    return res.status(400).json({ error: 'Invalid path' });
+  }
+  const filePath = safePath(relativePath);
+  if (!filePath.startsWith(FILES_DIR)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  try {
+    const stat = await fs.stat(filePath);
+    if (!stat.isFile()) {
+      return res.status(400).json({ error: 'Not a file' });
+    }
+    await fs.unlink(filePath);
+    res.status(204).send();
+  } catch (err) {
+    if (err.code === 'ENOENT') return res.status(404).json({ error: 'Not found' });
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Export PDF sans en-têtes ni pieds de page (génération côté serveur)
 app.get('/api/export-pdf', async (req, res) => {
   const relativePath = req.query.path;

@@ -1,48 +1,100 @@
 # Lecteur Markdown
 
-Application pour lire des fichiers Markdown comme des pages, avec impression et export PDF via Chrome.
+Application web pour lire des fichiers Markdown comme des pages : liste des fichiers, rendu HTML et export PDF (génération côté serveur via Chromium/Puppeteer). Idéal pour consulter des CGV, documentations ou notes au format Markdown et les imprimer ou enregistrer en PDF.
+
+## Fonctionnalités
+
+- **Liste des fichiers** : affichage de tous les `.md` du dossier `files` (y compris dans les sous-dossiers)
+- **Rendu Markdown** : affichage en HTML avec `react-markdown`
+- **Export PDF** : bouton « Imprimer » qui génère un PDF côté serveur (Puppeteer/Chromium) et ouvre une fenêtre pour imprimer ou enregistrer en PDF
+- **Impression** : les titres de niveau 1 (`#`) provoquent un saut de page pour un rendu type chapitres
 
 ## Stack
 
-- **Backend** : Node.js + Express (liste et contenu des `.md`)
-- **Frontend** : React + Vite + react-markdown
+- **Backend** : Node.js 20 + Express (liste et contenu des `.md`, export PDF)
+- **Frontend** : React 18 + Vite + react-markdown
+- **PDF** : Puppeteer (Chromium) pour la génération serveur
 - **Conteneur** : Docker + docker-compose
 
-## Utilisation avec Docker
+## Prérequis
 
-1. Placez vos fichiers Markdown dans le dossier **`files`** (à la racine du projet).
-2. Lancez l’application :
+- **Avec Docker** : Docker et Docker Compose
+- **Sans Docker** : Node.js 20+ et npm
+
+## Installation
+
+### Cloner le projet
+
+```bash
+git clone <url-du-repo>
+cd markdown-viewer
+```
+
+### Option 1 : Lancer avec Docker (recommandé en production)
+
+1. Placez vos fichiers Markdown dans le dossier **`files`** à la racine du projet (créer le dossier si besoin).
+2. Construire et démarrer :
 
 ```bash
 docker compose up --build
 ```
 
-3. Ouvrez **http://localhost:3000** dans Chrome.
-4. Choisissez un fichier dans la liste, puis :
-   - **Imprimer** : bouton « Imprimer / Export PDF » ou `Ctrl+P` (Windows/Linux) / `Cmd+P` (Mac)
-   - **Export PDF** : dans la fenêtre d’impression Chrome, destination « Enregistrer au format PDF »
+3. Ouvrir **http://localhost:3000** dans le navigateur.
+4. Choisir un fichier dans la liste, puis utiliser le bouton **« Imprimer »** pour générer un PDF et l’ouvrir (impression ou enregistrement en PDF). Dans la fenêtre d’impression du navigateur, décocher « En-têtes et pieds de page » pour éviter URL, date et numéros de page.
 
-Les titres de niveau 1 (`#`) provoquent un saut de page à l’impression pour un rendu type « chapitres ».
+### Option 2 : Développement local (sans Docker)
 
-## Développement local (sans Docker)
+1. Créer le dossier `files` à la racine et y mettre vos fichiers `.md`.
+
+2. Installer et lancer l’API (terminal 1) :
 
 ```bash
-# Terminal 1 - API
 cd server && npm install && npm run dev
+```
 
-# Terminal 2 - Client (avec proxy vers l’API)
+L’API tourne sur **http://localhost:3001**.
+
+3. Installer et lancer le client (terminal 2) :
+
+```bash
 cd client && npm install && npm run dev
 ```
 
-Ouvrir http://localhost:5173. Les fichiers sont lus depuis le dossier `files` à la racine.
+Le client tourne sur **http://localhost:5173** et envoie les appels `/api` au serveur (proxy Vite).
 
-## Structure
+4. Ouvrir **http://localhost:5173**. Les fichiers sont lus depuis le dossier `files` à la racine.
+
+**Note** : L’export PDF en local nécessite Chromium/Chrome installé sur la machine. Avec `puppeteer-core`, définir éventuellement `PUPPETEER_EXECUTABLE_PATH` vers l’exécutable Chromium/Chrome.
+
+## Variables d’environnement
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `PORT` | Port du serveur | `3001` (dev) / `3000` (Docker) |
+| `FILES_DIR` | Dossier des fichiers Markdown | `../files` (relatif au serveur) ou `/app/files` (Docker) |
+| `STATIC_DIR` | Dossier du client buildé (production) | `../client/dist` ou `/app/client/dist` |
+| `PUPPETEER_EXECUTABLE_PATH` | Chemin vers Chromium/Chrome (export PDF) | non défini (Puppeteer utilise son binaire) |
+
+## Structure du projet
 
 ```
 markdown-viewer/
-├── files/          # Vos fichiers .md (monté en volume avec Docker)
-├── client/         # Application React
-├── server/         # API Express
-├── Dockerfile
+├── files/              # Vos fichiers .md (monté en volume avec Docker)
+├── client/             # Application React (Vite)
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
+│   └── vite.config.js  # proxy /api → serveur
+├── server/             # API Express
+│   ├── index.js        # routes /api/files, /api/files/*, /api/export-pdf
+│   └── pdf-template.js # template HTML pour le PDF
+├── Dockerfile          # Node 20 + Chromium + build client + serveur
 └── docker-compose.yml
 ```
+
+## API
+
+- `GET /api/files` : liste des fichiers `.md` (path + name)
+- `GET /api/files/:path` : contenu brut du fichier Markdown
+- `GET /api/export-pdf?path=...` : génération et téléchargement du PDF (Puppeteer)

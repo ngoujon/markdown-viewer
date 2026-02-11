@@ -177,6 +177,52 @@ function isAllowedFile(name) {
   return n.endsWith('.md') || n.endsWith('.txt');
 }
 
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function useHighlightInDocument(containerRef, content, searchQuery) {
+  useEffect(() => {
+    const el = containerRef?.current;
+    if (!el) return;
+    const unwrapHighlights = () => {
+      el.querySelectorAll('.doc-search-highlight-wrap').forEach((wrap) => {
+        wrap.replaceWith(...wrap.childNodes);
+      });
+    };
+    unwrapHighlights();
+    const q = (searchQuery || '').trim();
+    if (!q) return;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    let n;
+    while ((n = walker.nextNode())) textNodes.push(n);
+    const regex = new RegExp(`(${escapeRegex(q)})`, 'gi');
+    textNodes.forEach((node) => {
+      const text = node.textContent || '';
+      if (!regex.test(text)) return;
+      const fragment = document.createDocumentFragment();
+      let lastIndex = 0;
+      regex.lastIndex = 0;
+      let m;
+      while ((m = regex.exec(text)) !== null) {
+        fragment.appendChild(document.createTextNode(text.slice(lastIndex, m.index)));
+        const mark = document.createElement('mark');
+        mark.className = 'doc-search-highlight';
+        mark.textContent = m[1];
+        fragment.appendChild(mark);
+        lastIndex = m.index + m[1].length;
+      }
+      fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+      const wrap = document.createElement('span');
+      wrap.className = 'doc-search-highlight-wrap';
+      wrap.appendChild(fragment);
+      node.parentNode?.replaceChild(wrap, node);
+    });
+    return unwrapHighlights;
+  }, [content, searchQuery]);
+}
+
 export default function App() {
   const [files, setFiles] = useState([]);
   const [currentPath, setCurrentPath] = useState(null);
@@ -201,8 +247,11 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [matchingPaths, setMatchingPaths] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [docSearchQuery, setDocSearchQuery] = useState('');
+  const [docSearchIndex, setDocSearchIndex] = useState(0);
   const searchTimeoutRef = useRef(null);
   const viewerRef = useRef(null);
+  const markdownContentRef = useRef(null);
 
   const toggleMinimap = () => {
     setMinimapEnabled((prev) => {
@@ -442,6 +491,22 @@ export default function App() {
     return `${n} octet${n !== 1 ? 's' : ''}`;
   };
 
+  useHighlightInDocument(markdownContentRef, content, docSearchQuery);
+
+  const scrollToDocSearchMatch = useCallback((index) => {
+    const el = markdownContentRef?.current;
+    if (!el) return;
+    const marks = el.querySelectorAll('.doc-search-highlight');
+    if (marks.length === 0) return;
+    const i = ((index % marks.length) + marks.length) % marks.length;
+    marks[i].scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, []);
+
+  useEffect(() => {
+    if (!docSearchQuery.trim()) return;
+    scrollToDocSearchMatch(docSearchIndex);
+  }, [docSearchIndex, docSearchQuery, scrollToDocSearchMatch]);
+
   const kpis = {
     totalFiles: files.length,
     totalSize: files.reduce((acc, f) => acc + (f.size || 0), 0),
@@ -567,13 +632,50 @@ export default function App() {
             </span>
           </header>
         )}
+        {currentPath && !loading && !error && (
+          <div className="doc-search-bar">
+            <input
+              type="search"
+              className="doc-search-input"
+              placeholder="Rechercher dans ce document…"
+              value={docSearchQuery}
+              onChange={(e) => {
+                setDocSearchQuery(e.target.value);
+                setDocSearchIndex(0);
+              }}
+              aria-label="Rechercher dans le document"
+            />
+            {docSearchQuery.trim() && (
+              <div className="doc-search-nav">
+                <button
+                  type="button"
+                  className="doc-search-btn"
+                  onClick={() => setDocSearchIndex((i) => Math.max(0, i - 1))}
+                  title="Occurrence précédente"
+                  aria-label="Occurrence précédente"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="doc-search-btn"
+                  onClick={() => setDocSearchIndex((i) => i + 1)}
+                  title="Occurrence suivante"
+                  aria-label="Occurrence suivante"
+                >
+                  ↓
+                </button>
+              </div>
+            )}
+          </div>
+        )}
         <div className="viewer-container">
           <div ref={viewerRef} className="viewer">
             {error && <div className="error">{error}</div>}
             {loading && <div className="empty">Chargement…</div>}
             {!loading && currentPath && !error && (
               <div className="page">
-                <div className="markdown">
+                <div ref={markdownContentRef} className="markdown">
                   <ReactMarkdown>{content}</ReactMarkdown>
                 </div>
               </div>

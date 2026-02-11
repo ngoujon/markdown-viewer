@@ -191,6 +191,62 @@ function ConfirmModal({ open, title, message, confirmLabel, cancelLabel, onConfi
   );
 }
 
+function CreateFileModal({ open, value, onChange, onConfirm, onCancel, creating }) {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    inputRef.current?.focus();
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const v = (value || '').trim();
+        if (v) onConfirm();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open, value, onConfirm, onCancel]);
+
+  if (!open) return null;
+  return (
+    <div className="modal-overlay" onClick={onCancel} role="dialog" aria-modal="true" aria-labelledby="create-file-modal-title">
+      <div className="modal-dialog modal--create" onClick={(e) => e.stopPropagation()}>
+        <h2 id="create-file-modal-title" className="modal-title">Nouveau fichier</h2>
+        <p className="modal-message">Indiquez le nom du fichier. L&apos;extension .md sera ajoutée automatiquement, les espaces seront remplacés par des underscores.</p>
+        <div className="modal-create-input-wrap">
+          <input
+            ref={inputRef}
+            type="text"
+            className="modal-create-input"
+            placeholder="ex. mon document"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            aria-label="Nom du fichier"
+            disabled={creating}
+          />
+        </div>
+        <div className="modal-actions">
+          <button type="button" className="modal-btn modal-btn--cancel" onClick={onCancel} disabled={creating}>
+            Annuler
+          </button>
+          <button
+            type="button"
+            className="modal-btn modal-btn--confirm modal-btn--create"
+            onClick={() => (value || '').trim() && onConfirm()}
+            disabled={creating || !(value || '').trim()}
+          >
+            {creating ? 'Création…' : 'Créer'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function isAllowedFile(name) {
   const n = name.toLowerCase();
   return n.endsWith('.md') || n.endsWith('.txt');
@@ -252,6 +308,9 @@ export default function App() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [showCreateFileModal, setShowCreateFileModal] = useState(false);
+  const [createFileName, setCreateFileName] = useState('');
+  const [createFileLoading, setCreateFileLoading] = useState(false);
   const [trashFiles, setTrashFiles] = useState([]);
   const [showTrashModal, setShowTrashModal] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -430,11 +489,16 @@ export default function App() {
     fetchTrash();
   };
 
-  const handleCreateFile = async () => {
-    const raw = window.prompt('Nom du nouveau fichier :');
-    if (raw == null || !raw.trim()) return;
-    const name = raw.trim();
+  const handleCreateFileOpen = () => {
+    setCreateFileName('');
+    setShowCreateFileModal(true);
+  };
+
+  const handleCreateFileSubmit = async () => {
+    const name = createFileName.trim();
+    if (!name) return;
     setUploadError(null);
+    setCreateFileLoading(true);
     try {
       const r = await fetch(`${API}/files/create`, {
         method: 'POST',
@@ -446,10 +510,14 @@ export default function App() {
         setUploadError(data.error || `Erreur ${r.status}`);
         return;
       }
+      setShowCreateFileModal(false);
+      setCreateFileName('');
       fetchFiles();
       setCurrentPath(data.path);
     } catch (err) {
       setUploadError(err.message || 'Erreur réseau.');
+    } finally {
+      setCreateFileLoading(false);
     }
   };
 
@@ -657,7 +725,7 @@ export default function App() {
         <div className="sidebar-header">
           <h2>Fichiers</h2>
           <div className="sidebar-header-actions">
-            <button type="button" className="btn-refresh" onClick={handleCreateFile} title="Nouveau fichier">
+            <button type="button" className="btn-refresh" onClick={handleCreateFileOpen} title="Nouveau fichier">
               Nouveau
             </button>
             <button type="button" className="btn-refresh btn-refresh--icon" onClick={refreshAll} title="Actualiser la liste">
@@ -891,6 +959,14 @@ export default function App() {
           </button>
         </footer>
       </div>
+      <CreateFileModal
+        open={showCreateFileModal}
+        value={createFileName}
+        onChange={setCreateFileName}
+        onConfirm={handleCreateFileSubmit}
+        onCancel={() => setShowCreateFileModal(false)}
+        creating={createFileLoading}
+      />
       <ConfirmModal
         open={!!confirmDelete}
         title="Déplacer dans la corbeille"

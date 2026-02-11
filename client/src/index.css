@@ -990,6 +990,52 @@ body {
   outline-offset: 2px;
 }
 
+.modal--create .modal-message {
+  margin-bottom: 1rem;
+}
+
+.modal-create-input-wrap {
+  margin-bottom: 1.25rem;
+}
+
+.modal-create-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  font-family: var(--font-ui);
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.modal-create-input::placeholder {
+  color: var(--muted);
+}
+
+.modal-create-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(122, 184, 212, 0.25);
+}
+
+.modal-btn--create {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.modal-btn--create:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.modal-btn--create:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ========== PRINT STYLES ========== */
 @page {
   size: A4;

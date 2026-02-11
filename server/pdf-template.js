@@ -5,7 +5,7 @@ const HTML_START = `<!DOCTYPE html>
   <meta charset="UTF-8" />
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; padding: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 11pt; line-height: 1.6; color: #1a1a1a; }
+    body { margin: 0; padding: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 11pt; line-height: 1.6; color: #1a1a1a; }
     .markdown h1 { font-size: 1.75rem; font-weight: 600; margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ccc; page-break-after: avoid; page-break-before: always; }
     .markdown h1:first-child { page-break-before: auto; }
     .markdown h2 { font-size: 1.35rem; font-weight: 600; margin: 1.5rem 0 0.75rem; page-break-after: avoid; }

@@ -38,7 +38,7 @@ body {
   background: var(--surface);
   border-right: 1px solid var(--border);
   padding: 1rem 0;
-  overflow-y: auto;
+  overflow: visible;
   transition: background 0.15s ease, box-shadow 0.15s ease;
   display: flex;
   flex-direction: column;
@@ -47,7 +47,7 @@ body {
 .sidebar-file-list {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .sidebar--drag-over {

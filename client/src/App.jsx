@@ -56,6 +56,7 @@ export default function App() {
   const [trashFiles, setTrashFiles] = useState([]);
   const [showTrashModal, setShowTrashModal] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [printError, setPrintError] = useState(null);
 
   const fetchFiles = () => {
     fetch(`${API}/files`)
@@ -125,10 +126,10 @@ export default function App() {
 
   const handlePrint = () => {
     if (!currentPath) return;
-    setError(null);
+    setPrintError(null);
     const printWindow = window.open('', '_blank', 'noopener');
     if (!printWindow) {
-      setError('Autorisez les pop-ups pour ouvrir l\'impression PDF.');
+      setPrintError('Autorisez les pop-ups pour l\'impression PDF.');
       return;
     }
     setPdfLoading(true);
@@ -155,7 +156,7 @@ export default function App() {
         printWindow.onload = doPrint;
         setTimeout(doPrint, 1500);
       })
-      .catch((e) => setError(e.message))
+      .catch((e) => setPrintError(e.message))
       .finally(() => setPdfLoading(false));
   };
 
@@ -367,6 +368,9 @@ export default function App() {
               >
                 {pdfLoading ? 'Préparation…' : 'Imprimer'}
               </button>
+              {printError && (
+                <span className="doc-header-print-error">{printError}</span>
+              )}
             </div>
             <span className="doc-header-name">{currentFile?.name ?? currentPath}</span>
             <span className="doc-header-meta">

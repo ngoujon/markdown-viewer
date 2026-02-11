@@ -296,6 +296,14 @@ body {
 .doc-header-left {
   flex-shrink: 0;
   min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.doc-header-print-error {
+  font-size: 0.75rem;
+  color: #f7768e;
 }
 
 .doc-header-btn-print {

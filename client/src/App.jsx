@@ -6,32 +6,33 @@ const MINIMAP_STORAGE_KEY = 'markdown-viewer-minimap';
 
 function DocumentMinimap({ content, viewerRef, visible }) {
   const minimapRef = useRef(null);
-  const contentRef = useRef(null);
   const [scale, setScale] = useState(0.1);
+  const [contentWidth, setContentWidth] = useState(400);
   const [viewportStyle, setViewportStyle] = useState({});
 
   const updateScaleAndViewport = useCallback(() => {
     const viewer = viewerRef?.current;
-    const contentEl = contentRef?.current;
     const minimap = minimapRef?.current;
-    if (!viewer || !contentEl || !minimap || !visible) return;
+    if (!viewer || !minimap || !visible) return;
 
-    const contentHeight = contentEl.scrollHeight;
-    const contentWidth = contentEl.scrollWidth;
+    // Utiliser les dimensions du viewer principal (document réel)
+    const docHeight = viewer.scrollHeight;
+    const docWidth = viewer.scrollWidth;
     const viewerHeight = viewer.clientHeight;
-    const minimapWidth = minimap.clientWidth || 80;
+    const minimapWidth = minimap.clientWidth || 120;
 
-    if (contentHeight <= 0) return;
-    const scaleY = viewerHeight / contentHeight;
-    const scaleX = minimapWidth / Math.max(contentWidth, 1);
+    if (docHeight <= 0) return;
+    const scaleY = viewerHeight / docHeight;
+    const scaleX = minimapWidth / Math.max(docWidth, 1);
     const s = Math.min(scaleX, scaleY, 1);
     setScale(s);
+    setContentWidth(docWidth);
 
     const scrollTop = viewer.scrollTop;
     const viewportHeight = viewer.clientHeight;
-    const scaledContentHeight = contentHeight * s;
-    const viewportTop = (scrollTop / contentHeight) * scaledContentHeight;
-    const viewportH = (viewportHeight / contentHeight) * scaledContentHeight;
+    const scaledDocHeight = docHeight * s;
+    const viewportTop = (scrollTop / docHeight) * scaledDocHeight;
+    const viewportH = (viewportHeight / docHeight) * scaledDocHeight;
     setViewportStyle({
       top: viewportTop,
       height: Math.max(viewportH, 20),
@@ -55,21 +56,24 @@ function DocumentMinimap({ content, viewerRef, visible }) {
 
   useEffect(() => {
     if (!visible) return;
-    const timer = setTimeout(updateScaleAndViewport, 150);
+    const timer = setTimeout(updateScaleAndViewport, 200);
     return () => clearTimeout(timer);
   }, [visible, content, updateScaleAndViewport]);
 
   const handleMinimapClick = (e) => {
     const viewer = viewerRef?.current;
     const minimap = minimapRef?.current;
-    const contentEl = contentRef?.current;
-    if (!viewer || !minimap || !contentEl) return;
+    if (!viewer || !minimap) return;
     const rect = minimap.getBoundingClientRect();
     const y = e.clientY - rect.top;
-    const contentHeight = contentEl.scrollHeight;
-    const viewerHeight = viewer.clientHeight;
-    const scaleY = viewerHeight / contentHeight;
-    const contentY = (y / scaleY) - viewer.clientHeight / 2;
+    const docHeight = viewer.scrollHeight;
+    const docWidth = viewer.scrollWidth;
+    const minimapWidth = minimap.clientWidth;
+    const scaleX = minimapWidth / Math.max(docWidth, 1);
+    const scaleY = minimap.clientHeight / docHeight;
+    const s = Math.min(scaleX, scaleY, 1);
+    const scaledHeight = docHeight * s;
+    const contentY = (y / scaledHeight) * docHeight - viewer.clientHeight / 2;
     viewer.scrollTop = Math.max(0, contentY);
   };
 
@@ -85,9 +89,12 @@ function DocumentMinimap({ content, viewerRef, visible }) {
     >
       <div className="minimap-content-wrapper">
         <div
-          ref={contentRef}
-          className="minimap-content"
-          style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}
+          className="minimap-content viewer-mirror"
+          style={{
+            width: contentWidth,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+          }}
         >
           <div className="page minimap-page">
             <div className="markdown">

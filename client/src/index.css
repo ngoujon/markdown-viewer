@@ -434,7 +434,7 @@ body {
 /* Minimap (barre de défilement comme VS Code) */
 .minimap {
   flex-shrink: 0;
-  width: 80px;
+  width: 120px;
   background: var(--surface);
   border-left: 1px solid var(--border);
   position: relative;
@@ -444,18 +444,26 @@ body {
 
 .minimap-content-wrapper {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
 }
 
 .minimap-content {
-  width: 200px;
-  min-width: 200px;
+  display: block;
+}
+
+.minimap-content.viewer-mirror {
+  padding: 2rem;
+  background: var(--bg);
+  box-sizing: border-box;
 }
 
 .minimap .minimap-page {
-  width: 200px;
-  min-height: 297mm;
+  width: 100%;
+  min-height: auto !important;
   padding: 20mm 25mm;
   background: var(--surface);
   box-shadow: none;

@@ -84,6 +84,14 @@ function XMarkIcon({ className }) {
   );
 }
 
+function ArrowsPointingInIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
+    </svg>
+  );
+}
+
 const API = '/api';
 const MINIMAP_STORAGE_KEY = 'markdown-viewer-minimap';
 const SPLIT_MODE_STORAGE_KEY = 'markdown-viewer-split-mode';
@@ -735,7 +743,12 @@ export default function App() {
     setOpenTabs((prev) => {
       const idx = prev.indexOf(path);
       if (idx >= 0) {
-        setRightTabIndex(idx);
+        // Fichier déjà ouvert : si on a 2+ onglets, garder uniquement celui-ci (retour à 1 onglet)
+        if (prev.length >= 2) {
+          setLeftTabIndex(0);
+          setRightTabIndex(0);
+          return [path];
+        }
         return prev;
       }
       const next = [...prev, path];
@@ -767,6 +780,17 @@ export default function App() {
       return next;
     });
   }, [leftTabIndex, rightTabIndex]);
+
+  const collapseToSingleTab = useCallback(() => {
+    setOpenTabs((prev) => {
+      if (prev.length <= 1) return prev;
+      const idx = Math.min(rightTabIndex, prev.length - 1);
+      const path = prev[idx];
+      setLeftTabIndex(0);
+      setRightTabIndex(0);
+      return [path];
+    });
+  }, [rightTabIndex]);
 
   const toggleMinimap = () => {
     setMinimapEnabled((prev) => {
@@ -1147,6 +1171,8 @@ export default function App() {
           onClick={(e) => {
             e.preventDefault();
             setOpenTabs([]);
+            setLeftTabIndex(0);
+            setRightTabIndex(0);
           }}
         >
           Vue d'ensemble
@@ -1194,7 +1220,7 @@ export default function App() {
                   e.preventDefault();
                   openTab(f.path, !e.ctrlKey && !e.metaKey);
                 }}
-                title="Cliquer pour ouvrir · Ctrl+clic pour ouvrir dans le panneau gauche côte à côte"
+                title="Cliquer pour ouvrir · Ctrl+clic pour ouvrir côte à côte · Cliquer à nouveau sur un fichier ouvert pour afficher un seul onglet"
               >
                 {f.name}
               </a>
@@ -1242,6 +1268,17 @@ export default function App() {
       <div className={`viewer-wrap ${sidebarHidden ? 'viewer-wrap--sidebar-hidden' : ''}`}>
         {openTabs.length > 0 && (
           <div className="tabs-bar">
+            {openTabs.length >= 2 && (
+              <button
+                type="button"
+                className="tabs-bar-collapse-btn"
+                onClick={collapseToSingleTab}
+                title="Garder uniquement l'onglet actif (un seul panneau)"
+                aria-label="Réduire à un seul onglet"
+              >
+                <ArrowsPointingInIcon className="tabs-bar-collapse-icon" />
+              </button>
+            )}
             {openTabs.map((path, index) => {
               const file = files.find((f) => f.path === path);
               const name = file?.name ?? path.split('/').pop() ?? path;

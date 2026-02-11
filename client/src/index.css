@@ -454,6 +454,30 @@ body {
   overflow-x: auto;
 }
 
+.tabs-bar-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  margin-right: 0.25rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tabs-bar-collapse-btn:hover {
+  background: rgba(122, 184, 212, 0.12);
+  color: var(--accent);
+}
+
+.tabs-bar-collapse-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 .tab-item {
   display: flex;
   align-items: center;

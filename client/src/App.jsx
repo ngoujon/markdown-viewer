@@ -367,11 +367,14 @@ export default function App() {
             </div>
             <span className="doc-header-name">{currentFile?.name ?? currentPath}</span>
             <span className="doc-header-meta">
-              <span className="doc-header-label">Taille</span> {formatSize(currentFile?.size)}
+              <span className="doc-header-label">Taille</span>{' '}
+              <span className="doc-header-value">{formatSize(currentFile?.size)}</span>
               <span className="doc-header-sep"> · </span>
-              <span className="doc-header-label">Créé le</span> {formatDate(currentFile?.createdAt)}
+              <span className="doc-header-label">Créé le</span>{' '}
+              <span className="doc-header-value">{formatDate(currentFile?.createdAt)}</span>
               <span className="doc-header-sep"> · </span>
-              <span className="doc-header-label">Modifié le</span> {formatDate(currentFile?.modifiedAt)}
+              <span className="doc-header-label">Modifié le</span>{' '}
+              <span className="doc-header-value">{formatDate(currentFile?.modifiedAt)}</span>
             </span>
           </header>
         )}

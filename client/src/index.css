@@ -336,13 +336,17 @@ body {
   flex-shrink: 0;
   min-width: 100px;
   text-align: right;
-  color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .doc-header-label {
   font-weight: 500;
   color: var(--muted);
+}
+
+.doc-header-value {
+  color: var(--text);
+  font-weight: 500;
 }
 
 .doc-header-sep {

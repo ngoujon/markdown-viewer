@@ -2,7 +2,7 @@ services:
   markdown-viewer:
     build: .
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
       # Montez votre dossier de fichiers markdown ici
       - ./files:/app/files:ro

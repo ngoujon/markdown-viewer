@@ -11,8 +11,11 @@ function ArrowPathIcon({ className }) {
 
 function PrinterIcon({ className }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M6 4h12v5H6V4zM6 12h12v6H6v-6zM6 18v3h12v-3" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="currentColor" strokeWidth={32} strokeLinejoin="round" className={className}>
+      <path d="M384,368h24a40.12,40.12,0,0,0,40-40V168a40.12,40.12,0,0,0-40-40H104a40.12,40.12,0,0,0-40,40V328a40.12,40.12,0,0,0,40,40h24" />
+      <rect x="128" y="240" width="256" height="208" rx="24.32" ry="24.32" />
+      <path d="M384,128V104a40.12,40.12,0,0,0-40-40H168a40.12,40.12,0,0,0-40,40v24" />
+      <circle cx="392" cy="184" r="24" fill="currentColor" />
     </svg>
   );
 }

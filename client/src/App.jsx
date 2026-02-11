@@ -256,12 +256,15 @@ export default function App() {
   const formatDate = (iso) => {
     if (!iso) return '—';
     try {
-      return new Date(iso).toLocaleDateString('fr-FR', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      });
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return '—';
+      const day = d.getDate();
+      const month = d.toLocaleDateString('fr-FR', { month: 'long' });
+      const year = d.getFullYear();
+      const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return `${day} ${month} ${year} à ${time}`;
     } catch {
-      return iso;
+      return '—';
     }
   };
 

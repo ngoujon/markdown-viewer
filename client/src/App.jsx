@@ -55,6 +55,7 @@ export default function App() {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [trashFiles, setTrashFiles] = useState([]);
   const [showTrash, setShowTrash] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const fetchFiles = () => {
     fetch(`${API}/files`)
@@ -120,6 +121,42 @@ export default function App() {
     } catch (err) {
       setUploadError(err.message || 'Erreur réseau.');
     }
+  };
+
+  const handlePrint = () => {
+    if (!currentPath) return;
+    setPdfLoading(true);
+    setError(null);
+    fetch(`${API}/export-pdf?path=${encodeURIComponent(currentPath)}`)
+      .then((r) => {
+        if (!r.ok) throw new Error('Export impossible');
+        return r.arrayBuffer();
+      })
+      .then((arrayBuffer) => {
+        if (arrayBuffer.byteLength === 0) throw new Error('PDF vide');
+        const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const printWindow = window.open(url, '_blank', 'noopener');
+        if (printWindow) {
+          let printed = false;
+          const doPrint = () => {
+            if (printed) return;
+            printed = true;
+            printWindow.print();
+            printWindow.onafterprint = () => {
+              printWindow.close();
+              URL.revokeObjectURL(url);
+            };
+          };
+          printWindow.onload = doPrint;
+          setTimeout(doPrint, 1500);
+        } else {
+          URL.revokeObjectURL(url);
+          setError('Autorisez les pop-ups pour ouvrir l\'impression PDF.');
+        }
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setPdfLoading(false));
   };
 
   const handleRestore = async (trashPath) => {
@@ -309,6 +346,17 @@ export default function App() {
       <div className="viewer-wrap">
         {currentPath && (
           <header className="doc-header">
+            <div className="doc-header-left">
+              <button
+                type="button"
+                className="doc-header-btn-print"
+                onClick={handlePrint}
+                disabled={pdfLoading}
+                title="Imprimer ou enregistrer en PDF"
+              >
+                {pdfLoading ? 'Préparation…' : 'Imprimer'}
+              </button>
+            </div>
             <span className="doc-header-name">{currentFile?.name ?? currentPath}</span>
             <span className="doc-header-meta">
               <span className="doc-header-label">Taille</span> {formatSize(currentFile?.size)}

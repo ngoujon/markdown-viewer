@@ -235,6 +235,7 @@ body {
 
 .doc-header {
   flex-shrink: 0;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -246,12 +247,49 @@ body {
   font-size: 0.9rem;
 }
 
+.doc-header-left {
+  flex-shrink: 0;
+  min-width: 100px;
+}
+
+.doc-header-btn-print {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: var(--font-ui);
+  cursor: pointer;
+}
+
+.doc-header-btn-print:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.doc-header-btn-print:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .doc-header-name {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-weight: 600;
   color: var(--text);
+  max-width: calc(100% - 220px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .doc-header-meta {
+  flex-shrink: 0;
+  min-width: 100px;
+  text-align: right;
   color: var(--muted);
   font-size: 0.85rem;
 }

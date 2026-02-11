@@ -249,6 +249,7 @@ export default function App() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [docSearchQuery, setDocSearchQuery] = useState('');
   const [docSearchIndex, setDocSearchIndex] = useState(0);
+  const [docSearchCount, setDocSearchCount] = useState(0);
   const searchTimeoutRef = useRef(null);
   const viewerRef = useRef(null);
   const markdownContentRef = useRef(null);
@@ -493,6 +494,17 @@ export default function App() {
 
   useHighlightInDocument(markdownContentRef, content, docSearchQuery);
 
+  useEffect(() => {
+    if (!docSearchQuery.trim()) {
+      setDocSearchCount(0);
+      return;
+    }
+    const el = markdownContentRef?.current;
+    if (!el) return;
+    const marks = el.querySelectorAll('.doc-search-highlight');
+    setDocSearchCount(marks.length);
+  }, [content, docSearchQuery]);
+
   const scrollToDocSearchMatch = useCallback((index) => {
     const el = markdownContentRef?.current;
     if (!el) return;
@@ -650,25 +662,34 @@ export default function App() {
               aria-label="Rechercher dans le document"
             />
             {docSearchQuery.trim() && (
-              <div className="doc-search-nav">
-                <button
-                  type="button"
-                  className="doc-search-btn"
-                  onClick={() => setDocSearchIndex((i) => Math.max(0, i - 1))}
-                  title="Occurrence précédente"
-                  aria-label="Occurrence précédente"
-                >
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  className="doc-search-btn"
-                  onClick={() => setDocSearchIndex((i) => i + 1)}
-                  title="Occurrence suivante"
-                  aria-label="Occurrence suivante"
-                >
-                  ↓
-                </button>
+              <div className="doc-search-results">
+                <span className="doc-search-count">
+                  {docSearchCount === 0
+                    ? 'Aucun résultat'
+                    : `${((docSearchIndex % docSearchCount) + docSearchCount) % docSearchCount + 1} / ${docSearchCount}`}
+                </span>
+                <div className="doc-search-nav">
+                  <button
+                    type="button"
+                    className="doc-search-btn"
+                    onClick={() => setDocSearchIndex((i) => i - 1)}
+                    disabled={docSearchCount === 0}
+                    title="Occurrence précédente"
+                    aria-label="Occurrence précédente"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="doc-search-btn"
+                    onClick={() => setDocSearchIndex((i) => i + 1)}
+                    disabled={docSearchCount === 0}
+                    title="Occurrence suivante"
+                    aria-label="Occurrence suivante"
+                  >
+                    ↓
+                  </button>
+                </div>
               </div>
             )}
           </div>

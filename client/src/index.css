@@ -487,6 +487,18 @@ body {
   box-shadow: 0 0 0 2px rgba(122, 184, 212, 0.25);
 }
 
+.doc-search-results {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.doc-search-count {
+  font-size: 0.85rem;
+  color: var(--muted);
+  min-width: 5rem;
+}
+
 .doc-search-nav {
   display: flex;
   gap: 0.25rem;
@@ -503,10 +515,15 @@ body {
   font-family: var(--font-ui);
 }
 
-.doc-search-btn:hover {
+.doc-search-btn:hover:not(:disabled) {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--bg);
+}
+
+.doc-search-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .doc-search-highlight {

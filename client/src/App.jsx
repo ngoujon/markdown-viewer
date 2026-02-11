@@ -60,6 +60,14 @@ function ArrowDownTrayIcon({ className }) {
   );
 }
 
+function XMarkIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
 const API = '/api';
 const MINIMAP_STORAGE_KEY = 'markdown-viewer-minimap';
 
@@ -400,12 +408,274 @@ function useHighlightInDocument(containerRef, content, searchQuery) {
   }, [content, searchQuery]);
 }
 
-export default function App() {
-  const [files, setFiles] = useState([]);
-  const [currentPath, setCurrentPath] = useState(null);
+function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdfLoading, printError }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [docSearchQuery, setDocSearchQuery] = useState('');
+  const [docSearchDebounced, setDocSearchDebounced] = useState('');
+  const [docSearchIndex, setDocSearchIndex] = useState(0);
+  const [docSearchCount, setDocSearchCount] = useState(0);
+  const docSearchTimeoutRef = useRef(null);
+  const viewerRef = useRef(null);
+  const markdownContentRef = useRef(null);
+  const currentFile = files.find((f) => f.path === path);
+
+  const refreshContent = useCallback(() => {
+    if (!path) return;
+    setLoading(true);
+    setError(null);
+    fetch(`${API}/files/${encodeURIComponent(path)}`)
+      .then((r) => {
+        if (!r.ok) throw new Error('Fichier introuvable');
+        return r.text();
+      })
+      .then(setContent)
+      .catch((e) => {
+        setError(e.message);
+        setContent('');
+      })
+      .finally(() => setLoading(false));
+  }, [path]);
+
+  useEffect(() => {
+    if (!path) {
+      setContent('');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    fetch(`${API}/files/${encodeURIComponent(path)}`)
+      .then((r) => {
+        if (!r.ok) throw new Error('Fichier introuvable');
+        return r.text();
+      })
+      .then(setContent)
+      .catch((e) => {
+        setError(e.message);
+        setContent('');
+      })
+      .finally(() => setLoading(false));
+  }, [path]);
+
+  useEffect(() => {
+    const q = docSearchQuery.trim();
+    if (!q) {
+      if (docSearchTimeoutRef.current) clearTimeout(docSearchTimeoutRef.current);
+      setDocSearchDebounced('');
+      return;
+    }
+    if (docSearchTimeoutRef.current) clearTimeout(docSearchTimeoutRef.current);
+    docSearchTimeoutRef.current = setTimeout(() => setDocSearchDebounced(q), 2000);
+    return () => {
+      if (docSearchTimeoutRef.current) clearTimeout(docSearchTimeoutRef.current);
+    };
+  }, [docSearchQuery]);
+
+  useHighlightInDocument(markdownContentRef, content, docSearchDebounced);
+
+  useEffect(() => {
+    if (!docSearchDebounced) {
+      setDocSearchCount(0);
+      return;
+    }
+    const el = markdownContentRef?.current;
+    if (!el) return;
+    const marks = el.querySelectorAll('.doc-search-highlight');
+    setDocSearchCount(marks.length);
+  }, [content, docSearchDebounced]);
+
+  const scrollToDocSearchMatch = useCallback((index) => {
+    const el = markdownContentRef?.current;
+    if (!el) return;
+    const marks = el.querySelectorAll('.doc-search-highlight');
+    if (marks.length === 0) return;
+    const i = ((index % marks.length) + marks.length) % marks.length;
+    marks[i].scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, []);
+
+  useEffect(() => {
+    if (!docSearchDebounced) return;
+    scrollToDocSearchMatch(docSearchIndex);
+  }, [docSearchIndex, docSearchDebounced, content, scrollToDocSearchMatch]);
+
+  const formatDate = (iso) => {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return '—';
+      const day = d.getDate();
+      const month = d.toLocaleDateString('fr-FR', { month: 'long' });
+      const year = d.getFullYear();
+      const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return `${day} ${month} ${year} à ${time}`;
+    } catch {
+      return '—';
+    }
+  };
+
+  const formatSize = (bytes) => {
+    if (bytes == null || bytes === undefined) return '—';
+    const n = Number(bytes);
+    if (Number.isNaN(n) || n < 0) return '—';
+    if (n >= 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(2)} Mo`;
+    if (n >= 1024) return `${(n / 1024).toFixed(2)} Ko`;
+    return `${n} octet${n !== 1 ? 's' : ''}`;
+  };
+
+  if (!path) return null;
+
+  return (
+    <div className="document-pane">
+      <header className="doc-header">
+        <div className="doc-header-left">
+          <button
+            type="button"
+            className="doc-header-btn-icon"
+            onClick={refreshContent}
+            disabled={loading}
+            title="Actualiser le contenu du fichier"
+            aria-label="Actualiser le contenu du fichier"
+          >
+            <ArrowPathIcon className="doc-header-icon" />
+          </button>
+          <button
+            type="button"
+            className="doc-header-btn-icon doc-header-btn-print"
+            onClick={() => onDownloadPdf(path)}
+            disabled={pdfLoading}
+            title="Télécharger le PDF"
+            aria-label="Télécharger le PDF"
+          >
+            {pdfLoading ? (
+              <ArrowPathIcon className="doc-header-icon doc-header-icon--spin" />
+            ) : (
+              <ArrowDownTrayIcon className="doc-header-icon" />
+            )}
+          </button>
+          <button
+            type="button"
+            className="doc-header-btn-icon doc-header-btn-print"
+            onClick={() => onPrint(path)}
+            disabled={pdfLoading}
+            title="Ouvrir dans un nouvel onglet pour imprimer"
+            aria-label="Ouvrir le PDF pour imprimer"
+          >
+            {pdfLoading ? (
+              <ArrowPathIcon className="doc-header-icon doc-header-icon--spin" />
+            ) : (
+              <PrinterIcon className="doc-header-icon" />
+            )}
+          </button>
+          {printError && (
+            <span className="doc-header-print-error">{printError}</span>
+          )}
+        </div>
+        <span className="doc-header-name">{currentFile?.name ?? path}</span>
+        <span className="doc-header-meta">
+          <span className="doc-header-label">Taille</span>{' '}
+          <span className="doc-header-value">{formatSize(currentFile?.size)}</span>
+          <span className="doc-header-sep"> · </span>
+          <span className="doc-header-label">Créé le</span>{' '}
+          <span className="doc-header-value">{formatDate(currentFile?.createdAt)}</span>
+          <span className="doc-header-sep"> · </span>
+          <span className="doc-header-label">Modifié le</span>{' '}
+          <span className="doc-header-value">{formatDate(currentFile?.modifiedAt)}</span>
+        </span>
+      </header>
+      {!loading && !error && (
+        <div className="doc-search-bar">
+          <div className="search-input-wrap">
+            <input
+              type="search"
+              className="doc-search-input"
+              placeholder="Rechercher dans ce document…"
+              value={docSearchQuery}
+              onChange={(e) => {
+                setDocSearchQuery(e.target.value);
+                setDocSearchIndex(0);
+              }}
+              aria-label="Rechercher dans le document"
+            />
+            {docSearchQuery.length > 0 && (
+              <button
+                type="button"
+                className="search-clear-btn"
+                onClick={() => {
+                  setDocSearchQuery('');
+                  setDocSearchIndex(0);
+                }}
+                title="Effacer la recherche"
+                aria-label="Effacer la recherche"
+              >
+                ×
+              </button>
+            )}
+          </div>
+          {docSearchQuery.trim() && (
+            <div className="doc-search-results">
+              <span className="doc-search-count">
+                {docSearchDebounced !== docSearchQuery.trim()
+                  ? 'Recherche…'
+                  : docSearchCount === 0
+                    ? 'Aucun résultat'
+                    : `${((docSearchIndex % docSearchCount) + docSearchCount) % docSearchCount + 1} / ${docSearchCount}`}
+              </span>
+              <div className="doc-search-nav">
+                <button
+                  type="button"
+                  className="doc-search-btn"
+                  onClick={() => setDocSearchIndex((i) => i - 1)}
+                  disabled={docSearchCount === 0 || docSearchDebounced !== docSearchQuery.trim()}
+                  title="Occurrence précédente"
+                  aria-label="Occurrence précédente"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="doc-search-btn"
+                  onClick={() => setDocSearchIndex((i) => i + 1)}
+                  disabled={docSearchCount === 0 || docSearchDebounced !== docSearchQuery.trim()}
+                  title="Occurrence suivante"
+                  aria-label="Occurrence suivante"
+                >
+                  ↓
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      <div className="viewer-container document-pane-viewer">
+        <div ref={viewerRef} className="viewer">
+          {error && <div className="error">{error}</div>}
+          {loading && <div className="empty">Chargement…</div>}
+          {!loading && !error && (
+            <div className="page">
+              <div ref={markdownContentRef} className="markdown">
+                <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown>
+              </div>
+            </div>
+          )}
+        </div>
+        {!loading && !error && (
+          <DocumentMinimap
+            content={content}
+            viewerRef={viewerRef}
+            visible={minimapEnabled}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [files, setFiles] = useState([]);
+  const [openTabs, setOpenTabs] = useState([]);
+  const [leftTabIndex, setLeftTabIndex] = useState(0);
+  const [rightTabIndex, setRightTabIndex] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
@@ -433,14 +703,45 @@ export default function App() {
   const [matchingPaths, setMatchingPaths] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchDebouncing, setSearchDebouncing] = useState(false);
-  const [docSearchQuery, setDocSearchQuery] = useState('');
-  const [docSearchDebounced, setDocSearchDebounced] = useState('');
-  const [docSearchIndex, setDocSearchIndex] = useState(0);
-  const [docSearchCount, setDocSearchCount] = useState(0);
-  const docSearchTimeoutRef = useRef(null);
+  const [filesError, setFilesError] = useState(null);
   const searchTimeoutRef = useRef(null);
-  const viewerRef = useRef(null);
-  const markdownContentRef = useRef(null);
+
+  const openTab = useCallback((path, preferRight = true) => {
+    setOpenTabs((prev) => {
+      const idx = prev.indexOf(path);
+      if (idx >= 0) {
+        setRightTabIndex(idx);
+        return prev;
+      }
+      const next = [...prev, path];
+      if (next.length === 1) {
+        setLeftTabIndex(0);
+        setRightTabIndex(0);
+      } else if (preferRight) {
+        setRightTabIndex(next.length - 1);
+      } else {
+        setLeftTabIndex(next.length - 1);
+      }
+      return next;
+    });
+  }, []);
+
+  const closeTab = useCallback((index) => {
+    setOpenTabs((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      const dec = (i) => (i > index ? i - 1 : i);
+      let newLeft = dec(leftTabIndex);
+      let newRight = dec(rightTabIndex);
+      if (leftTabIndex === index) newLeft = Math.min(newRight, next.length - 1);
+      if (rightTabIndex === index) newRight = Math.min(newLeft, next.length - 1);
+      newLeft = Math.max(0, Math.min(newLeft, next.length - 1));
+      newRight = Math.max(0, Math.min(newRight, next.length - 1));
+      if (next.length <= 1) newRight = newLeft;
+      setLeftTabIndex(newLeft);
+      setRightTabIndex(newRight);
+      return next;
+    });
+  }, [leftTabIndex, rightTabIndex]);
 
   const toggleMinimap = () => {
     setMinimapEnabled((prev) => {
@@ -466,7 +767,7 @@ export default function App() {
         return text ? JSON.parse(text) : [];
       })
       .then(setFiles)
-      .catch((e) => setError(e.message));
+      .catch((e) => setFilesError(e.message));
   };
 
   const fetchTrash = () => {
@@ -509,7 +810,14 @@ export default function App() {
         setUploadError(data.error || 'Impossible de supprimer le fichier.');
         return;
       }
-      if (currentPath === filePath) setCurrentPath(null);
+      setOpenTabs((prev) => {
+        const next = prev.filter((p) => p !== filePath);
+        if (next.length < 2) {
+          setLeftTabIndex(0);
+          setRightTabIndex(Math.min(1, next.length - 1));
+        }
+        return next;
+      });
       setUploadError(null);
       fetchFiles();
       fetchTrash();
@@ -518,11 +826,11 @@ export default function App() {
     }
   };
 
-  const handlePrint = async () => {
-    if (!currentPath) return;
+  const handlePrint = async (path) => {
+    if (!path) return;
     setPrintError(null);
     setPdfLoading(true);
-    const pdfUrl = `${API}/export-pdf?path=${encodeURIComponent(currentPath)}`;
+    const pdfUrl = `${API}/export-pdf?path=${encodeURIComponent(path)}`;
     try {
       const res = await fetch(pdfUrl);
       if (!res.ok) {
@@ -540,11 +848,11 @@ export default function App() {
     }
   };
 
-  const handleDownloadPdf = async () => {
-    if (!currentPath) return;
+  const handleDownloadPdf = async (path) => {
+    if (!path) return;
     setPrintError(null);
     setPdfLoading(true);
-    const pdfUrl = `${API}/export-pdf?path=${encodeURIComponent(currentPath)}`;
+    const pdfUrl = `${API}/export-pdf?path=${encodeURIComponent(path)}`;
     try {
       const res = await fetch(pdfUrl);
       if (!res.ok) {
@@ -553,7 +861,8 @@ export default function App() {
       }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const filename = (currentFile?.name || currentPath).replace(/\.(md|txt)$/i, '') + '.pdf';
+      const file = files.find((f) => f.path === path);
+      const filename = (file?.name || path).replace(/\.(md|txt)$/i, '') + '.pdf';
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
@@ -584,7 +893,7 @@ export default function App() {
       setUploadError(null);
       fetchFiles();
       fetchTrash();
-      setCurrentPath(data.path);
+      openTab(data.path);
       setShowTrashModal(false);
     } catch (err) {
       setUploadError(err.message || 'Erreur réseau.');
@@ -659,7 +968,7 @@ export default function App() {
       setShowRenameFileModal(false);
       setRenameFilePath(null);
       setRenameFileName('');
-      if (currentPath === renameFilePath) setCurrentPath(data.path);
+      setOpenTabs((prev) => prev.map((p) => (p === renameFilePath ? data.path : p)));
       fetchFiles();
     } catch (err) {
       setUploadError(err.message || 'Erreur réseau.');
@@ -687,30 +996,13 @@ export default function App() {
       setShowCreateFileModal(false);
       setCreateFileName('');
       fetchFiles();
-      setCurrentPath(data.path);
+      openTab(data.path);
     } catch (err) {
       setUploadError(err.message || 'Erreur réseau.');
     } finally {
       setCreateFileLoading(false);
     }
   };
-
-  const refreshContent = useCallback(() => {
-    if (!currentPath) return;
-    setLoading(true);
-    setError(null);
-    fetch(`${API}/files/${encodeURIComponent(currentPath)}`)
-      .then((r) => {
-        if (!r.ok) throw new Error('Fichier introuvable');
-        return r.text();
-      })
-      .then(setContent)
-      .catch((e) => {
-        setError(e.message);
-        setContent('');
-      })
-      .finally(() => setLoading(false));
-  }, [currentPath]);
 
   useEffect(() => {
     fetchFiles();
@@ -758,44 +1050,9 @@ export default function App() {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [showTrashModal]);
 
-  useEffect(() => {
-    if (!currentPath) {
-      setContent('');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    fetch(`${API}/files/${encodeURIComponent(currentPath)}`)
-      .then((r) => {
-        if (!r.ok) throw new Error('Fichier introuvable');
-        return r.text();
-      })
-      .then(setContent)
-      .catch((e) => {
-        setError(e.message);
-        setContent('');
-      })
-      .finally(() => setLoading(false));
-  }, [currentPath]);
-
   const displayFiles = searchQuery.trim()
     ? files.filter((f) => matchingPaths.includes(f.path))
     : files;
-  const currentFile = files.find((f) => f.path === currentPath);
-  const formatDate = (iso) => {
-    if (!iso) return '—';
-    try {
-      const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return '—';
-      const day = d.getDate();
-      const month = d.toLocaleDateString('fr-FR', { month: 'long' });
-      const year = d.getFullYear();
-      const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-      return `${day} ${month} ${year} à ${time}`;
-    } catch {
-      return '—';
-    }
-  };
 
   const formatSize = (bytes) => {
     if (bytes == null || bytes === undefined) return '—';
@@ -805,47 +1062,6 @@ export default function App() {
     if (n >= 1024) return `${(n / 1024).toFixed(2)} Ko`;
     return `${n} octet${n !== 1 ? 's' : ''}`;
   };
-
-  useEffect(() => {
-    const q = docSearchQuery.trim();
-    if (!q) {
-      if (docSearchTimeoutRef.current) clearTimeout(docSearchTimeoutRef.current);
-      setDocSearchDebounced('');
-      return;
-    }
-    if (docSearchTimeoutRef.current) clearTimeout(docSearchTimeoutRef.current);
-    docSearchTimeoutRef.current = setTimeout(() => setDocSearchDebounced(q), 2000);
-    return () => {
-      if (docSearchTimeoutRef.current) clearTimeout(docSearchTimeoutRef.current);
-    };
-  }, [docSearchQuery]);
-
-  useHighlightInDocument(markdownContentRef, content, docSearchDebounced);
-
-  useEffect(() => {
-    if (!docSearchDebounced) {
-      setDocSearchCount(0);
-      return;
-    }
-    const el = markdownContentRef?.current;
-    if (!el) return;
-    const marks = el.querySelectorAll('.doc-search-highlight');
-    setDocSearchCount(marks.length);
-  }, [content, docSearchDebounced]);
-
-  const scrollToDocSearchMatch = useCallback((index) => {
-    const el = markdownContentRef?.current;
-    if (!el) return;
-    const marks = el.querySelectorAll('.doc-search-highlight');
-    if (marks.length === 0) return;
-    const i = ((index % marks.length) + marks.length) % marks.length;
-    marks[i].scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }, []);
-
-  useEffect(() => {
-    if (!docSearchDebounced) return;
-    scrollToDocSearchMatch(docSearchIndex);
-  }, [docSearchIndex, docSearchDebounced, content, scrollToDocSearchMatch]);
 
   const kpis = {
     totalFiles: files.length,
@@ -888,10 +1104,10 @@ export default function App() {
         </div>
         <a
           href="#"
-          className={`sidebar-nav-link ${!currentPath ? 'active' : ''}`}
+          className={`sidebar-nav-link ${openTabs.length === 0 ? 'active' : ''}`}
           onClick={(e) => {
             e.preventDefault();
-            setCurrentPath(null);
+            setOpenTabs([]);
           }}
         >
           Vue d'ensemble
@@ -910,14 +1126,14 @@ export default function App() {
             </button>
           </div>
         </div>
-        {uploadError && (
-          <div className="sidebar-upload-error">{uploadError}</div>
+        {(uploadError || filesError) && (
+          <div className="sidebar-upload-error">{uploadError || filesError}</div>
         )}
         {uploading && (
           <div className="sidebar-uploading">Copie en cours…</div>
         )}
         <ul className="file-list sidebar-file-list">
-          {files.length === 0 && !error && !uploading && (
+          {files.length === 0 && !filesError && !uploading && (
             <li className="file-list-empty">
               Aucun fichier. Glissez-déposez des fichiers .txt ou .md ici.
             </li>
@@ -934,17 +1150,12 @@ export default function App() {
             <li key={f.path} className="file-list-item">
               <a
                 href="#"
-                className={currentPath === f.path ? 'active' : ''}
+                className={openTabs.includes(f.path) ? 'active' : ''}
                 onClick={(e) => {
                   e.preventDefault();
-                  setCurrentPath(f.path);
-                  if (searchQuery.trim()) {
-                    const q = searchQuery.trim();
-                    setDocSearchQuery(q);
-                    setDocSearchDebounced(q);
-                    setDocSearchIndex(0);
-                  }
+                  openTab(f.path, !e.ctrlKey && !e.metaKey);
                 }}
+                title="Cliquer pour ouvrir · Ctrl+clic pour ouvrir dans le panneau gauche côte à côte"
               >
                 {f.name}
               </a>
@@ -990,173 +1201,112 @@ export default function App() {
         </button>
       )}
       <div className={`viewer-wrap ${sidebarHidden ? 'viewer-wrap--sidebar-hidden' : ''}`}>
-        {currentPath && (
-          <header className="doc-header">
-            <div className="doc-header-left">
-              <button
-                type="button"
-                className="doc-header-btn-icon"
-                onClick={refreshContent}
-                disabled={loading}
-                title="Actualiser le contenu du fichier"
-                aria-label="Actualiser le contenu du fichier"
-              >
-                <ArrowPathIcon className="doc-header-icon" />
-              </button>
-              <button
-                type="button"
-                className="doc-header-btn-icon doc-header-btn-print"
-                onClick={handleDownloadPdf}
-                disabled={pdfLoading}
-                title="Télécharger le PDF (enregistrement direct, fonctionne hors ligne)"
-                aria-label="Télécharger le PDF"
-              >
-                {pdfLoading ? (
-                  <ArrowPathIcon className="doc-header-icon doc-header-icon--spin" />
-                ) : (
-                  <ArrowDownTrayIcon className="doc-header-icon" />
-                )}
-              </button>
-              <button
-                type="button"
-                className="doc-header-btn-icon doc-header-btn-print"
-                onClick={handlePrint}
-                disabled={pdfLoading}
-                title="Ouvrir dans un nouvel onglet pour imprimer"
-                aria-label="Ouvrir le PDF pour imprimer"
-              >
-                {pdfLoading ? (
-                  <ArrowPathIcon className="doc-header-icon doc-header-icon--spin" />
-                ) : (
-                  <PrinterIcon className="doc-header-icon" />
-                )}
-              </button>
-              {printError && (
-                <span className="doc-header-print-error">{printError}</span>
-              )}
-            </div>
-            <span className="doc-header-name">{currentFile?.name ?? currentPath}</span>
-            <span className="doc-header-meta">
-              <span className="doc-header-label">Taille</span>{' '}
-              <span className="doc-header-value">{formatSize(currentFile?.size)}</span>
-              <span className="doc-header-sep"> · </span>
-              <span className="doc-header-label">Créé le</span>{' '}
-              <span className="doc-header-value">{formatDate(currentFile?.createdAt)}</span>
-              <span className="doc-header-sep"> · </span>
-              <span className="doc-header-label">Modifié le</span>{' '}
-              <span className="doc-header-value">{formatDate(currentFile?.modifiedAt)}</span>
-            </span>
-          </header>
-        )}
-        {currentPath && !loading && !error && (
-          <div className="doc-search-bar">
-            <div className="search-input-wrap">
-              <input
-                type="search"
-                className="doc-search-input"
-                placeholder="Rechercher dans ce document…"
-                value={docSearchQuery}
-                onChange={(e) => {
-                  setDocSearchQuery(e.target.value);
-                  setDocSearchIndex(0);
-                }}
-                aria-label="Rechercher dans le document"
-              />
-              {docSearchQuery.length > 0 && (
-                <button
-                  type="button"
-                  className="search-clear-btn"
+        {openTabs.length > 0 && (
+          <div className="tabs-bar">
+            {openTabs.map((path, index) => {
+              const file = files.find((f) => f.path === path);
+              const name = file?.name ?? path.split('/').pop() ?? path;
+              const isLeft = index === leftTabIndex;
+              const isRight = index === rightTabIndex && openTabs.length >= 2;
+              const isActive = isLeft || isRight;
+              return (
+                <div
+                  key={path}
+                  className={`tab-item ${isActive ? 'active' : ''} ${isLeft ? 'tab-left' : ''} ${isRight ? 'tab-right' : ''}`}
                   onClick={() => {
-                    setDocSearchQuery('');
-                    setDocSearchIndex(0);
+                    if (openTabs.length >= 2) {
+                      setRightTabIndex(index);
+                    } else {
+                      setLeftTabIndex(index);
+                    }
                   }}
-                  title="Effacer la recherche"
-                  aria-label="Effacer la recherche"
                 >
-                  ×
-                </button>
-              )}
-            </div>
-            {docSearchQuery.trim() && (
-              <div className="doc-search-results">
-                <span className="doc-search-count">
-                  {docSearchDebounced !== docSearchQuery.trim()
-                    ? 'Recherche…'
-                    : docSearchCount === 0
-                      ? 'Aucun résultat'
-                      : `${((docSearchIndex % docSearchCount) + docSearchCount) % docSearchCount + 1} / ${docSearchCount}`}
-                </span>
-                <div className="doc-search-nav">
+                  <span className="tab-label">{name}</span>
                   <button
                     type="button"
-                    className="doc-search-btn"
-                    onClick={() => setDocSearchIndex((i) => i - 1)}
-                    disabled={docSearchCount === 0 || docSearchDebounced !== docSearchQuery.trim()}
-                    title="Occurrence précédente"
-                    aria-label="Occurrence précédente"
+                    className="tab-close"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      closeTab(index);
+                    }}
+                    title="Fermer l'onglet"
+                    aria-label={`Fermer ${name}`}
                   >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    className="doc-search-btn"
-                    onClick={() => setDocSearchIndex((i) => i + 1)}
-                    disabled={docSearchCount === 0 || docSearchDebounced !== docSearchQuery.trim()}
-                    title="Occurrence suivante"
-                    aria-label="Occurrence suivante"
-                  >
-                    ↓
+                    <XMarkIcon className="tab-close-icon" />
                   </button>
                 </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         )}
-        <div className="viewer-container">
-          <div ref={viewerRef} className="viewer">
-            {error && <div className="error">{error}</div>}
-            {loading && <div className="empty">Chargement…</div>}
-            {!loading && currentPath && !error && (
-              <div className="page">
-                <div ref={markdownContentRef} className="markdown">
-                  <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown>
-                </div>
-              </div>
-            )}
-            {!currentPath && !loading && (
-              <div className="overview">
-              <h1 className="overview-title">Vue d'ensemble</h1>
-              <div className="kpi-grid">
-                <div className="kpi-card">
-                  <span className="kpi-value">{kpis.totalFiles}</span>
-                  <span className="kpi-label">Fichiers</span>
-                </div>
-                <div className="kpi-card">
-                  <span className="kpi-value">{formatSize(kpis.totalSize)}</span>
-                  <span className="kpi-label">Taille totale</span>
-                </div>
-                <div className="kpi-card">
-                  <span className="kpi-value">{kpis.mdCount}</span>
-                  <span className="kpi-label">Fichiers .md</span>
-                </div>
-                <div className="kpi-card">
-                  <span className="kpi-value">{kpis.txtCount}</span>
-                  <span className="kpi-label">Fichiers .txt</span>
-                </div>
-                <div className="kpi-card">
-                  <span className="kpi-value">{kpis.trashCount}</span>
-                  <span className="kpi-label">Dans la corbeille</span>
+        <div className={`viewer-content ${openTabs.length >= 2 ? 'viewer-content--split' : ''}`}>
+          {openTabs.length === 0 && (
+            <div className="viewer-container">
+              <div className="viewer">
+                <div className="overview">
+                  <h1 className="overview-title">Vue d'ensemble</h1>
+                  <div className="kpi-grid">
+                    <div className="kpi-card">
+                      <span className="kpi-value">{kpis.totalFiles}</span>
+                      <span className="kpi-label">Fichiers</span>
+                    </div>
+                    <div className="kpi-card">
+                      <span className="kpi-value">{formatSize(kpis.totalSize)}</span>
+                      <span className="kpi-label">Taille totale</span>
+                    </div>
+                    <div className="kpi-card">
+                      <span className="kpi-value">{kpis.mdCount}</span>
+                      <span className="kpi-label">Fichiers .md</span>
+                    </div>
+                    <div className="kpi-card">
+                      <span className="kpi-value">{kpis.txtCount}</span>
+                      <span className="kpi-label">Fichiers .txt</span>
+                    </div>
+                    <div className="kpi-card">
+                      <span className="kpi-value">{kpis.trashCount}</span>
+                      <span className="kpi-label">Dans la corbeille</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
-          </div>
-          {currentPath && !loading && !error && (
-            <DocumentMinimap
-              content={content}
-              viewerRef={viewerRef}
-              visible={minimapEnabled}
+          {openTabs.length === 1 && (
+            <DocumentPane
+              path={openTabs[0]}
+              files={files}
+              minimapEnabled={minimapEnabled}
+              onPrint={handlePrint}
+              onDownloadPdf={handleDownloadPdf}
+              pdfLoading={pdfLoading}
+              printError={printError}
             />
+          )}
+          {openTabs.length >= 2 && (
+            <>
+              <div className="document-pane-wrapper">
+                <DocumentPane
+                  path={openTabs[leftTabIndex]}
+                  files={files}
+                  minimapEnabled={minimapEnabled}
+                  onPrint={handlePrint}
+                  onDownloadPdf={handleDownloadPdf}
+                  pdfLoading={pdfLoading}
+                  printError={printError}
+                />
+              </div>
+              <div className="document-pane-wrapper">
+                <DocumentPane
+                  path={openTabs[rightTabIndex]}
+                  files={files}
+                  minimapEnabled={minimapEnabled}
+                  onPrint={handlePrint}
+                  onDownloadPdf={handleDownloadPdf}
+                  pdfLoading={pdfLoading}
+                  printError={printError}
+                />
+              </div>
+            </>
           )}
         </div>
         <footer className="status-bar">

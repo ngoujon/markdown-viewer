@@ -11,8 +11,8 @@ function ArrowPathIcon({ className }) {
 
 function PrinterIcon({ className }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227 7.502 7.502 0 0 1-8.929-8.929 1.125 1.125 0 0 1 1.227-1.12L18 17.66M3 8.25c0-.621.504-1.125 1.125-1.125H4.5A2.25 2.25 0 0 1 6.75 5.25v1.5c0 .621.504 1.125 1.125 1.125h.375M3 8.25v8.25c0 .621.504 1.125 1.125 1.125h15.75c.621 0 1.125-.504 1.125-1.125V8.25M8.25 12h8.25" />
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M6 4h12v5H6V4zM6 12h12v6H6v-6zM6 18v3h12v-3" />
     </svg>
   );
 }

@@ -1022,6 +1022,7 @@ body {
 
 .markdown p {
   margin: 0 0 1rem;
+  text-align: justify;
 }
 
 .markdown ul, .markdown ol {
@@ -1031,27 +1032,33 @@ body {
 
 .markdown li {
   margin-bottom: 0.1rem;
+  text-align: justify;
 }
 
 .markdown table {
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 .markdown th, .markdown td {
   border: 1px solid var(--muted);
   padding: 0.25rem 0.5rem;
-  text-align: left;
 }
 
 .markdown th:first-child, .markdown td:first-child {
-  width: 75%;
+  width: auto;
 }
 
-.markdown th:last-child, .markdown td:last-child {
-  width: 25%;
+.markdown td:first-child {
+  text-align: justify;
+}
+
+.markdown th:not(:first-child), .markdown td:not(:first-child) {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
 }
 
 .markdown th {

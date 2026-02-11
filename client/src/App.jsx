@@ -7,11 +7,17 @@ function ConfirmModal({ open, title, message, confirmLabel, cancelLabel, onConfi
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e) => {
-      if (e.key === 'Escape') onCancel();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        onConfirm();
+      }
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [open, onCancel]);
+  }, [open, onCancel, onConfirm]);
 
   if (!open) return null;
   return (

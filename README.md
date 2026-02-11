@@ -47,7 +47,7 @@ npm run docker:build
 docker compose up
 ```
 
-4. Ouvrir **http://localhost:3001** dans le navigateur.
+4. Ouvrir **http://localhost:3000** dans le navigateur.
 5. Choisir un fichier dans la liste, puis utiliser le bouton **« Imprimer »** pour générer un PDF et l’ouvrir (impression ou enregistrement en PDF). Dans la fenêtre d’impression du navigateur, décocher « En-têtes et pieds de page » pour éviter URL, date et numéros de page.
 
 ### Option 2 : Développement local (sans Docker)
@@ -73,7 +73,7 @@ Production locale (même version que Docker) : `npm run start` (build puis serve
 
 | Variable | Description | Défaut |
 |----------|-------------|--------|
-| `PORT` | Port du serveur | `3001` (Docker et local) |
+| `PORT` | Port du serveur | `3001` (local) / `3000` (Docker) |
 | `FILES_DIR` | Dossier des fichiers Markdown | `../files` (relatif au serveur) ou `/app/files` (Docker) |
 | `STATIC_DIR` | Dossier du client buildé (production) | `../client/dist` ou `/app/client/dist` |
 | `PUPPETEER_EXECUTABLE_PATH` | Chemin vers Chromium/Chrome (export PDF) | non défini (Puppeteer utilise son binaire) |

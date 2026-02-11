@@ -254,6 +254,18 @@ body {
   font-family: var(--font-ui);
 }
 
+.sidebar .btn-refresh--icon {
+  padding: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar .btn-refresh-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 .sidebar .btn-refresh:hover {
   background: var(--accent);
   border-color: var(--accent);
@@ -428,8 +440,9 @@ body {
   flex-shrink: 0;
   min-width: 100px;
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .doc-header-print-error {
@@ -437,24 +450,41 @@ body {
   color: #f7768e;
 }
 
-.doc-header-btn-print {
-  padding: 0.4rem 0.8rem;
+.doc-header-btn-icon {
+  padding: 0.4rem;
   border: 1px solid var(--border);
   background: var(--surface-alt);
   color: var(--text);
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-family: var(--font-ui);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.doc-header-btn-print:hover:not(:disabled) {
+.doc-header-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.doc-header-icon--spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.doc-header-btn-print:hover:not(:disabled),
+.doc-header-btn-icon:hover:not(:disabled) {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--bg);
 }
 
-.doc-header-btn-print:disabled {
+.doc-header-btn-print:disabled,
+.doc-header-btn-icon:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { ArrowPathIcon, PrinterIcon } from '@heroicons/react/24/outline';
 
 const API = '/api';
 const MINIMAP_STORAGE_KEY = 'markdown-viewer-minimap';
@@ -404,6 +405,23 @@ export default function App() {
     fetchTrash();
   };
 
+  const refreshContent = useCallback(() => {
+    if (!currentPath) return;
+    setLoading(true);
+    setError(null);
+    fetch(`${API}/files/${encodeURIComponent(currentPath)}`)
+      .then((r) => {
+        if (!r.ok) throw new Error('Fichier introuvable');
+        return r.text();
+      })
+      .then(setContent)
+      .catch((e) => {
+        setError(e.message);
+        setContent('');
+      })
+      .finally(() => setLoading(false));
+  }, [currentPath]);
+
   useEffect(() => {
     fetchFiles();
     fetchTrash();
@@ -590,8 +608,8 @@ export default function App() {
         </a>
         <div className="sidebar-header">
           <h2>Fichiers</h2>
-          <button type="button" className="btn-refresh" onClick={refreshAll} title="Actualiser la liste">
-            Actualiser
+          <button type="button" className="btn-refresh btn-refresh--icon" onClick={refreshAll} title="Actualiser la liste">
+            <ArrowPathIcon className="btn-refresh-icon" />
           </button>
         </div>
         {uploadError && (
@@ -659,12 +677,27 @@ export default function App() {
             <div className="doc-header-left">
               <button
                 type="button"
-                className="doc-header-btn-print"
+                className="doc-header-btn-icon"
+                onClick={refreshContent}
+                disabled={loading}
+                title="Actualiser le contenu du fichier"
+                aria-label="Actualiser le contenu du fichier"
+              >
+                <ArrowPathIcon className="doc-header-icon" />
+              </button>
+              <button
+                type="button"
+                className="doc-header-btn-icon doc-header-btn-print"
                 onClick={handlePrint}
                 disabled={pdfLoading}
                 title="Imprimer ou enregistrer en PDF"
+                aria-label="Imprimer ou enregistrer en PDF"
               >
-                {pdfLoading ? 'Préparation…' : 'Imprimer'}
+                {pdfLoading ? (
+                  <ArrowPathIcon className="doc-header-icon doc-header-icon--spin" />
+                ) : (
+                  <PrinterIcon className="doc-header-icon" />
+                )}
               </button>
               {printError && (
                 <span className="doc-header-print-error">{printError}</span>

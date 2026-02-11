@@ -247,6 +247,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [matchingPaths, setMatchingPaths] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [searchDebouncing, setSearchDebouncing] = useState(false);
   const [docSearchQuery, setDocSearchQuery] = useState('');
   const [docSearchDebounced, setDocSearchDebounced] = useState('');
   const [docSearchIndex, setDocSearchIndex] = useState(0);
@@ -413,10 +414,13 @@ export default function App() {
     if (!q) {
       setMatchingPaths([]);
       setSearchLoading(false);
+      setSearchDebouncing(false);
       return;
     }
+    setSearchDebouncing(true);
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     searchTimeoutRef.current = setTimeout(() => {
+      setSearchDebouncing(false);
       setSearchLoading(true);
       fetch(`${API}/search?q=${encodeURIComponent(q)}`)
         .then((r) => (r.ok ? r.json() : []))
@@ -602,15 +606,15 @@ export default function App() {
               Aucun fichier. Glissez-déposez des fichiers .txt ou .md ici.
             </li>
           )}
-          {files.length > 0 && searchQuery.trim() && searchLoading && (
-            <li className="file-list-empty">Recherche…</li>
+          {files.length > 0 && searchQuery.trim() && (searchLoading || searchDebouncing) && (
+            <li className="file-list-empty">Recherche en cours…</li>
           )}
-          {files.length > 0 && searchQuery.trim() && !searchLoading && displayFiles.length === 0 && (
+          {files.length > 0 && searchQuery.trim() && !searchLoading && !searchDebouncing && displayFiles.length === 0 && (
             <li className="file-list-empty">
               Aucun document ne contient « {searchQuery.trim()} ».
             </li>
           )}
-          {displayFiles.map((f) => (
+          {(!searchQuery.trim() || (!searchLoading && !searchDebouncing)) && displayFiles.map((f) => (
             <li key={f.path} className="file-list-item">
               <a
                 href="#"

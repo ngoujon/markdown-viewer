@@ -438,8 +438,14 @@ body {
   background: var(--surface);
   border-left: 1px solid var(--border);
   position: relative;
-  cursor: pointer;
+  cursor: grab;
   overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.minimap:active {
+  cursor: grabbing;
 }
 
 .minimap-content-wrapper {
@@ -449,10 +455,12 @@ body {
   right: 0;
   bottom: 0;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .minimap-content {
   display: block;
+  pointer-events: none;
 }
 
 .minimap-content.viewer-mirror {

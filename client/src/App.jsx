@@ -9,6 +9,24 @@ function DocumentMinimap({ content, viewerRef, visible }) {
   const [scale, setScale] = useState(0.1);
   const [contentWidth, setContentWidth] = useState(400);
   const [viewportStyle, setViewportStyle] = useState({});
+  const isDraggingRef = useRef(false);
+
+  const scrollToMinimapY = useCallback((minimapY) => {
+    const viewer = viewerRef?.current;
+    const minimap = minimapRef?.current;
+    if (!viewer || !minimap) return;
+    const rect = minimap.getBoundingClientRect();
+    const y = minimapY - rect.top;
+    const docHeight = viewer.scrollHeight;
+    const docWidth = viewer.scrollWidth;
+    const minimapWidth = minimap.clientWidth;
+    const scaleX = minimapWidth / Math.max(docWidth, 1);
+    const scaleY = minimap.clientHeight / docHeight;
+    const s = Math.min(scaleX, scaleY, 1);
+    const scaledHeight = docHeight * s;
+    const contentY = (y / scaledHeight) * docHeight - viewer.clientHeight / 2;
+    viewer.scrollTop = Math.max(0, contentY);
+  }, [viewerRef]);
 
   const updateScaleAndViewport = useCallback(() => {
     const viewer = viewerRef?.current;
@@ -60,22 +78,29 @@ function DocumentMinimap({ content, viewerRef, visible }) {
     return () => clearTimeout(timer);
   }, [visible, content, updateScaleAndViewport]);
 
-  const handleMinimapClick = (e) => {
-    const viewer = viewerRef?.current;
-    const minimap = minimapRef?.current;
-    if (!viewer || !minimap) return;
-    const rect = minimap.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const docHeight = viewer.scrollHeight;
-    const docWidth = viewer.scrollWidth;
-    const minimapWidth = minimap.clientWidth;
-    const scaleX = minimapWidth / Math.max(docWidth, 1);
-    const scaleY = minimap.clientHeight / docHeight;
-    const s = Math.min(scaleX, scaleY, 1);
-    const scaledHeight = docHeight * s;
-    const contentY = (y / scaledHeight) * docHeight - viewer.clientHeight / 2;
-    viewer.scrollTop = Math.max(0, contentY);
+  const handleMinimapMouseDown = (e) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+    scrollToMinimapY(e.clientY);
   };
+
+  useEffect(() => {
+    if (!visible) return;
+    const handleMouseMove = (e) => {
+      if (!isDraggingRef.current) return;
+      e.preventDefault();
+      scrollToMinimapY(e.clientY);
+    };
+    const handleMouseUp = () => {
+      isDraggingRef.current = false;
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [visible, scrollToMinimapY]);
 
   if (!visible) return null;
 
@@ -83,7 +108,7 @@ function DocumentMinimap({ content, viewerRef, visible }) {
     <div
       ref={minimapRef}
       className="minimap"
-      onClick={handleMinimapClick}
+      onMouseDown={handleMinimapMouseDown}
       role="presentation"
       aria-hidden
     >

@@ -536,14 +536,27 @@ export default function App() {
         onDrop={handleDrop}
       >
         <div className="sidebar-search">
-          <input
-            type="search"
-            className="sidebar-search-input"
-            placeholder="Rechercher dans les documents…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            aria-label="Rechercher dans les documents"
-          />
+          <div className="search-input-wrap">
+            <input
+              type="search"
+              className="sidebar-search-input"
+              placeholder="Rechercher dans les documents…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Rechercher dans les documents"
+            />
+            {searchQuery.length > 0 && (
+              <button
+                type="button"
+                className="search-clear-btn"
+                onClick={() => setSearchQuery('')}
+                title="Effacer la recherche"
+                aria-label="Effacer la recherche"
+              >
+                ×
+              </button>
+            )}
+          </div>
         </div>
         <a
           href="#"
@@ -650,17 +663,33 @@ export default function App() {
         )}
         {currentPath && !loading && !error && (
           <div className="doc-search-bar">
-            <input
-              type="search"
-              className="doc-search-input"
-              placeholder="Rechercher dans ce document…"
-              value={docSearchQuery}
-              onChange={(e) => {
-                setDocSearchQuery(e.target.value);
-                setDocSearchIndex(0);
-              }}
-              aria-label="Rechercher dans le document"
-            />
+            <div className="search-input-wrap">
+              <input
+                type="search"
+                className="doc-search-input"
+                placeholder="Rechercher dans ce document…"
+                value={docSearchQuery}
+                onChange={(e) => {
+                  setDocSearchQuery(e.target.value);
+                  setDocSearchIndex(0);
+                }}
+                aria-label="Rechercher dans le document"
+              />
+              {docSearchQuery.length > 0 && (
+                <button
+                  type="button"
+                  className="search-clear-btn"
+                  onClick={() => {
+                    setDocSearchQuery('');
+                    setDocSearchIndex(0);
+                  }}
+                  title="Effacer la recherche"
+                  aria-label="Effacer la recherche"
+                >
+                  ×
+                </button>
+              )}
+            </div>
             {docSearchQuery.trim() && (
               <div className="doc-search-results">
                 <span className="doc-search-count">

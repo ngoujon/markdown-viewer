@@ -151,6 +151,44 @@ body {
   padding: 0 1rem 0.75rem;
 }
 
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.search-input-wrap .sidebar-search-input,
+.search-input-wrap .doc-search-input {
+  padding-right: 2rem;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-clear-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .sidebar-search-input {
   width: 100%;
   padding: 0.5rem 0.75rem;

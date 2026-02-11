@@ -269,5 +269,30 @@ try {
   }
 } catch (_) {}
 
+async function seedTrashExample() {
+  try {
+    await fs.mkdir(TRASH_DIR, { recursive: true });
+    const entries = await fs.readdir(TRASH_DIR);
+    if (entries.length === 0) {
+      const examplePath = path.join(TRASH_DIR, 'exemple-supprime.md');
+      const exampleContent = `# Exemple de fichier supprimé
+
+Ce fichier est un exemple placé dans la corbeille. Vous pouvez le restaurer pour le remettre dans la liste des fichiers.
+
+## Fonctionnalités de la corbeille
+
+- Les fichiers supprimés sont déplacés ici au lieu d'être effacés
+- Cliquez sur « Restaurer » pour remettre un fichier dans la liste
+- En cas de conflit de nom, un suffixe sera ajouté au fichier restauré
+`;
+      await fs.writeFile(examplePath, exampleContent, 'utf-8');
+    }
+  } catch (err) {
+    console.error('Seed trash:', err.message);
+  }
+}
+
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+seedTrashExample().then(() => {
+  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+});

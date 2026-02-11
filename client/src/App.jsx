@@ -54,7 +54,7 @@ export default function App() {
   const [uploadError, setUploadError] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [trashFiles, setTrashFiles] = useState([]);
-  const [showTrash, setShowTrash] = useState(false);
+  const [showTrashModal, setShowTrashModal] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
 
   const fetchFiles = () => {
@@ -175,6 +175,7 @@ export default function App() {
       fetchFiles();
       fetchTrash();
       setCurrentPath(data.path);
+      setShowTrashModal(false);
     } catch (err) {
       setUploadError(err.message || 'Erreur réseau.');
     }
@@ -218,6 +219,18 @@ export default function App() {
     fetchFiles();
     fetchTrash();
   }, []);
+
+  useEffect(() => {
+    if (!showTrashModal) return;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setShowTrashModal(false);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [showTrashModal]);
 
   useEffect(() => {
     if (!currentPath) {
@@ -299,7 +312,7 @@ export default function App() {
         {uploading && (
           <div className="sidebar-uploading">Copie en cours…</div>
         )}
-        <ul className="file-list">
+        <ul className="file-list sidebar-file-list">
           {files.length === 0 && !error && !uploading && (
             <li className="file-list-empty">
               Aucun fichier. Glissez-déposez des fichiers .txt ou .md ici.
@@ -329,37 +342,14 @@ export default function App() {
             </li>
           ))}
         </ul>
-        {trashFiles.length > 0 && (
-          <div className="trash-section">
-            <button
-              type="button"
-              className="trash-toggle"
-              onClick={() => setShowTrash(!showTrash)}
-              aria-expanded={showTrash}
-            >
-              <span className="trash-toggle-icon">{showTrash ? '▼' : '▶'}</span>
-              Corbeille ({trashFiles.length})
-            </button>
-            {showTrash && (
-              <ul className="file-list trash-list">
-                {trashFiles.map((f) => (
-                  <li key={f.path} className="file-list-item">
-                    <span className="trash-item-name">{f.name}</span>
-                    <button
-                      type="button"
-                      className="file-list-restore"
-                      title="Restaurer ce fichier"
-                      onClick={() => handleRestore(f.path)}
-                      aria-label={`Restaurer ${f.name}`}
-                    >
-                      ↩ Restaurer
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
+        <button
+          type="button"
+          className="sidebar-trash-btn"
+          onClick={() => setShowTrashModal(true)}
+          title="Voir les fichiers supprimés"
+        >
+          🗑 Corbeille {trashFiles.length > 0 && `(${trashFiles.length})`}
+        </button>
       </aside>
       <div className="viewer-wrap">
         {currentPath && (
@@ -434,6 +424,38 @@ export default function App() {
         onConfirm={handleDeleteConfirm}
         onCancel={() => setConfirmDelete(null)}
       />
+      {showTrashModal && (
+        <div className="modal-overlay" onClick={() => setShowTrashModal(false)} role="dialog" aria-modal="true" aria-labelledby="trash-modal-title">
+          <div className="modal-dialog modal--trash" onClick={(e) => e.stopPropagation()}>
+            <h2 id="trash-modal-title" className="modal-title">Corbeille</h2>
+            <p className="modal-message">Fichiers supprimés. Vous pouvez les restaurer.</p>
+            {trashFiles.length === 0 ? (
+              <p className="trash-empty">Aucun fichier dans la corbeille.</p>
+            ) : (
+              <ul className="trash-modal-list">
+                {trashFiles.map((f) => (
+                  <li key={f.path} className="trash-modal-item">
+                    <span className="trash-modal-name">{f.name}</span>
+                    <button
+                      type="button"
+                      className="file-list-restore"
+                      onClick={() => handleRestore(f.path)}
+                      title="Restaurer"
+                    >
+                      ↩ Restaurer
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="modal-actions">
+              <button type="button" className="modal-btn modal-btn--cancel" onClick={() => setShowTrashModal(false)}>
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -414,12 +414,100 @@ body {
   font-size: 0.85rem;
 }
 
+.viewer-container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
 .viewer {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow-y: auto;
   padding: 2rem;
   background: var(--bg);
+}
+
+/* Minimap (barre de défilement comme VS Code) */
+.minimap {
+  flex-shrink: 0;
+  width: 80px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.minimap-content-wrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.minimap-content {
+  width: 200px;
+  min-width: 200px;
+}
+
+.minimap .minimap-page {
+  width: 200px;
+  min-height: 297mm;
+  padding: 20mm 25mm;
+  background: var(--surface);
+  box-shadow: none;
+  margin: 0;
+}
+
+.minimap .markdown {
+  font-size: 12px;
+}
+
+.minimap-viewport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: rgba(122, 184, 212, 0.35);
+  border: 1px solid var(--accent);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Barre de statut en bas */
+.status-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 1rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.status-bar-btn {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.status-bar-btn:hover {
+  color: var(--text);
+  background: rgba(122, 184, 212, 0.12);
+}
+
+.status-bar-btn.active {
+  color: var(--accent);
 }
 
 /* Document page (screen) – plus large que A4 pour une meilleure lisibilité */
@@ -678,7 +766,7 @@ body {
     overflow: visible;
   }
 
-  .sidebar, .toolbar, .doc-header, .modal-overlay {
+  .sidebar, .toolbar, .doc-header, .status-bar, .minimap, .modal-overlay {
     display: none !important;
   }
 

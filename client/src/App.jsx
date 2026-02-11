@@ -1,7 +1,109 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 const API = '/api';
+const MINIMAP_STORAGE_KEY = 'markdown-viewer-minimap';
+
+function DocumentMinimap({ content, viewerRef, visible }) {
+  const minimapRef = useRef(null);
+  const contentRef = useRef(null);
+  const [scale, setScale] = useState(0.1);
+  const [viewportStyle, setViewportStyle] = useState({});
+
+  const updateScaleAndViewport = useCallback(() => {
+    const viewer = viewerRef?.current;
+    const contentEl = contentRef?.current;
+    const minimap = minimapRef?.current;
+    if (!viewer || !contentEl || !minimap || !visible) return;
+
+    const contentHeight = contentEl.scrollHeight;
+    const contentWidth = contentEl.scrollWidth;
+    const viewerHeight = viewer.clientHeight;
+    const minimapWidth = minimap.clientWidth || 80;
+
+    if (contentHeight <= 0) return;
+    const scaleY = viewerHeight / contentHeight;
+    const scaleX = minimapWidth / Math.max(contentWidth, 1);
+    const s = Math.min(scaleX, scaleY, 1);
+    setScale(s);
+
+    const scrollTop = viewer.scrollTop;
+    const viewportHeight = viewer.clientHeight;
+    const scaledContentHeight = contentHeight * s;
+    const viewportTop = (scrollTop / contentHeight) * scaledContentHeight;
+    const viewportH = (viewportHeight / contentHeight) * scaledContentHeight;
+    setViewportStyle({
+      top: viewportTop,
+      height: Math.max(viewportH, 20),
+    });
+  }, [viewerRef, visible]);
+
+  useEffect(() => {
+    if (!visible) return;
+    updateScaleAndViewport();
+    const viewer = viewerRef?.current;
+    if (!viewer) return;
+    const onScroll = () => updateScaleAndViewport();
+    viewer.addEventListener('scroll', onScroll);
+    const ro = new ResizeObserver(updateScaleAndViewport);
+    ro.observe(viewer);
+    return () => {
+      viewer.removeEventListener('scroll', onScroll);
+      ro.disconnect();
+    };
+  }, [visible, content, updateScaleAndViewport, viewerRef]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const timer = setTimeout(updateScaleAndViewport, 150);
+    return () => clearTimeout(timer);
+  }, [visible, content, updateScaleAndViewport]);
+
+  const handleMinimapClick = (e) => {
+    const viewer = viewerRef?.current;
+    const minimap = minimapRef?.current;
+    const contentEl = contentRef?.current;
+    if (!viewer || !minimap || !contentEl) return;
+    const rect = minimap.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const contentHeight = contentEl.scrollHeight;
+    const viewerHeight = viewer.clientHeight;
+    const scaleY = viewerHeight / contentHeight;
+    const contentY = (y / scaleY) - viewer.clientHeight / 2;
+    viewer.scrollTop = Math.max(0, contentY);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div
+      ref={minimapRef}
+      className="minimap"
+      onClick={handleMinimapClick}
+      role="presentation"
+      aria-hidden
+    >
+      <div className="minimap-content-wrapper">
+        <div
+          ref={contentRef}
+          className="minimap-content"
+          style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}
+        >
+          <div className="page minimap-page">
+            <div className="markdown">
+              <ReactMarkdown>{content}</ReactMarkdown>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="minimap-viewport"
+        style={viewportStyle}
+        aria-hidden
+      />
+    </div>
+  );
+}
 
 function ConfirmModal({ open, title, message, confirmLabel, cancelLabel, onConfirm, onCancel, variant = 'danger' }) {
   useEffect(() => {
@@ -57,6 +159,24 @@ export default function App() {
   const [showTrashModal, setShowTrashModal] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [printError, setPrintError] = useState(null);
+  const [minimapEnabled, setMinimapEnabled] = useState(() => {
+    try {
+      return localStorage.getItem(MINIMAP_STORAGE_KEY) !== 'false';
+    } catch {
+      return true;
+    }
+  });
+  const viewerRef = useRef(null);
+
+  const toggleMinimap = () => {
+    setMinimapEnabled((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(MINIMAP_STORAGE_KEY, String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   const fetchFiles = () => {
     fetch(`${API}/files`)
@@ -364,18 +484,19 @@ export default function App() {
             </span>
           </header>
         )}
-        <div className="viewer">
-          {error && <div className="error">{error}</div>}
-          {loading && <div className="empty">Chargement…</div>}
-          {!loading && currentPath && !error && (
-            <div className="page">
-              <div className="markdown">
-                <ReactMarkdown>{content}</ReactMarkdown>
+        <div className="viewer-container">
+          <div ref={viewerRef} className="viewer">
+            {error && <div className="error">{error}</div>}
+            {loading && <div className="empty">Chargement…</div>}
+            {!loading && currentPath && !error && (
+              <div className="page">
+                <div className="markdown">
+                  <ReactMarkdown>{content}</ReactMarkdown>
+                </div>
               </div>
-            </div>
-          )}
-          {!currentPath && !loading && (
-            <div className="overview">
+            )}
+            {!currentPath && !loading && (
+              <div className="overview">
               <h1 className="overview-title">Vue d'ensemble</h1>
               <div className="kpi-grid">
                 <div className="kpi-card">
@@ -401,7 +522,25 @@ export default function App() {
               </div>
             </div>
           )}
+          </div>
+          {currentPath && !loading && !error && (
+            <DocumentMinimap
+              content={content}
+              viewerRef={viewerRef}
+              visible={minimapEnabled}
+            />
+          )}
         </div>
+        <footer className="status-bar">
+          <button
+            type="button"
+            className={`status-bar-btn ${minimapEnabled ? 'active' : ''}`}
+            onClick={toggleMinimap}
+            title={minimapEnabled ? 'Masquer la minimap' : 'Afficher la minimap'}
+          >
+            Minimap
+          </button>
+        </footer>
       </div>
       <ConfirmModal
         open={!!confirmDelete}

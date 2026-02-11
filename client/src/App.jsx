@@ -198,6 +198,10 @@ export default function App() {
       return true;
     }
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [matchingPaths, setMatchingPaths] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimeoutRef = useRef(null);
   const viewerRef = useRef(null);
 
   const toggleMinimap = () => {
@@ -353,6 +357,32 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const q = searchQuery.trim();
+    if (!q) {
+      setMatchingPaths([]);
+      setSearchLoading(false);
+      return;
+    }
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => {
+      setSearchLoading(true);
+      fetch(`${API}/search?q=${encodeURIComponent(q)}`)
+        .then((r) => (r.ok ? r.json() : []))
+        .then((paths) => {
+          setMatchingPaths(paths);
+          setSearchLoading(false);
+        })
+        .catch(() => {
+          setMatchingPaths([]);
+          setSearchLoading(false);
+        });
+    }, 250);
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, [searchQuery]);
+
+  useEffect(() => {
     if (!showTrashModal) return;
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -384,6 +414,9 @@ export default function App() {
       .finally(() => setLoading(false));
   }, [currentPath]);
 
+  const displayFiles = searchQuery.trim()
+    ? files.filter((f) => matchingPaths.includes(f.path))
+    : files;
   const currentFile = files.find((f) => f.path === currentPath);
   const formatDate = (iso) => {
     if (!iso) return '—';
@@ -425,6 +458,16 @@ export default function App() {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
+        <div className="sidebar-search">
+          <input
+            type="search"
+            className="sidebar-search-input"
+            placeholder="Rechercher dans les documents…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Rechercher dans les documents"
+          />
+        </div>
         <a
           href="#"
           className={`sidebar-nav-link ${!currentPath ? 'active' : ''}`}
@@ -453,7 +496,15 @@ export default function App() {
               Aucun fichier. Glissez-déposez des fichiers .txt ou .md ici.
             </li>
           )}
-          {files.map((f) => (
+          {files.length > 0 && searchQuery.trim() && searchLoading && (
+            <li className="file-list-empty">Recherche…</li>
+          )}
+          {files.length > 0 && searchQuery.trim() && !searchLoading && displayFiles.length === 0 && (
+            <li className="file-list-empty">
+              Aucun document ne contient « {searchQuery.trim()} ».
+            </li>
+          )}
+          {displayFiles.map((f) => (
             <li key={f.path} className="file-list-item">
               <a
                 href="#"

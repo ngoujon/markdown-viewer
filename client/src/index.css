@@ -147,6 +147,32 @@ body {
   gap: 0.5rem;
 }
 
+.sidebar-search {
+  padding: 0 1rem 0.75rem;
+}
+
+.sidebar-search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: var(--font-ui);
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.sidebar-search-input::placeholder {
+  color: var(--muted);
+}
+
+.sidebar-search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(122, 184, 212, 0.25);
+}
+
 .sidebar-nav-link {
   display: block;
   margin: 0.5rem 1rem 0.75rem;

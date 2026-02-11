@@ -88,6 +88,35 @@ app.get('/api/files', async (req, res) => {
   }
 });
 
+app.get('/api/search', async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q) {
+    return res.json([]);
+  }
+  try {
+    await fs.mkdir(FILES_DIR, { recursive: true });
+    const files = await getListedFiles(FILES_DIR);
+    const lowerQ = q.toLowerCase();
+    const matching = [];
+    for (const f of files) {
+      const fullPath = safePath(f.path);
+      if (!fullPath.startsWith(FILES_DIR)) continue;
+      try {
+        const content = await fs.readFile(fullPath, 'utf-8');
+        if (content.toLowerCase().includes(lowerQ)) {
+          matching.push(f.path);
+        }
+      } catch {
+        // ignorer les fichiers inaccessibles
+      }
+    }
+    res.json(matching);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/upload', (req, res) => {
   upload.array('files', 20)(req, res, (err) => {
     if (err) {

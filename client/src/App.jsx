@@ -9,6 +9,14 @@ function ArrowPathIcon({ className }) {
   );
 }
 
+function PlusIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
+  );
+}
+
 function PrinterIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="currentColor" strokeWidth={32} strokeLinejoin="round" className={className}>
@@ -725,8 +733,8 @@ export default function App() {
         <div className="sidebar-header">
           <h2>Fichiers</h2>
           <div className="sidebar-header-actions">
-            <button type="button" className="btn-refresh" onClick={handleCreateFileOpen} title="Nouveau fichier">
-              Nouveau
+            <button type="button" className="btn-refresh btn-refresh--icon" onClick={handleCreateFileOpen} title="Nouveau fichier" aria-label="Nouveau fichier">
+              <PlusIcon className="btn-refresh-icon" />
             </button>
             <button type="button" className="btn-refresh btn-refresh--icon" onClick={refreshAll} title="Actualiser la liste">
               <ArrowPathIcon className="btn-refresh-icon" />

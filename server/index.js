@@ -187,6 +187,54 @@ app.get('/api/files/*', async (req, res) => {
   }
 });
 
+app.patch('/api/files/*', express.json(), async (req, res) => {
+  const relativePath = req.params[0];
+  const rawName = req.body?.newName;
+  if (!relativePath || relativePath.includes('..')) {
+    return res.status(400).json({ error: 'Chemin invalide' });
+  }
+  if (!rawName || typeof rawName !== 'string') {
+    return res.status(400).json({ error: 'Nom requis' });
+  }
+  const ext = path.extname(relativePath).toLowerCase();
+  const base = rawName.trim().replace(/\s+/g, '_').replace(new RegExp(`\\${ext}$`, 'i'), '') || path.basename(relativePath, ext);
+  const newFilename = `${base}${ext}`;
+  if (path.dirname(newFilename) !== '.' || newFilename.includes('..')) {
+    return res.status(400).json({ error: 'Nom invalide' });
+  }
+  const filePath = safePath(relativePath);
+  const newFilePath = safePath(newFilename);
+  if (!filePath.startsWith(FILES_DIR) || !newFilePath.startsWith(FILES_DIR)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  if (filePath === newFilePath) {
+    return res.status(400).json({ error: 'Le nom est identique' });
+  }
+  try {
+    const exists = await fs.access(filePath).then(() => true).catch(() => false);
+    if (!exists) return res.status(404).json({ error: 'Not found' });
+    const destExists = await fs.access(newFilePath).then(() => true).catch(() => false);
+    if (destExists) {
+      return res.status(409).json({ error: `Le fichier « ${newFilename} » existe déjà.` });
+    }
+    await fs.rename(filePath, newFilePath);
+    const stat = await fs.stat(newFilePath);
+    const createdAt = (stat.birthtime && stat.birthtime.getTime() > 0 ? stat.birthtime : stat.ctime).toISOString();
+    const modifiedAt = stat.mtime.toISOString();
+    res.json({
+      path: newFilename,
+      name: newFilename,
+      createdAt,
+      modifiedAt,
+      size: stat.size,
+    });
+  } catch (err) {
+    if (err.code === 'ENOENT') return res.status(404).json({ error: 'Not found' });
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.delete('/api/files/*', async (req, res) => {
   const relativePath = req.params[0];
   if (!relativePath || relativePath.includes('..')) {

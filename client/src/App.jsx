@@ -17,6 +17,14 @@ function PlusIcon({ className }) {
   );
 }
 
+function PencilIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
+    </svg>
+  );
+}
+
 function PrinterIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="currentColor" strokeWidth={32} strokeLinejoin="round" className={className}>
@@ -199,6 +207,63 @@ function ConfirmModal({ open, title, message, confirmLabel, cancelLabel, onConfi
   );
 }
 
+function RenameFileModal({ open, value, onChange, onConfirm, onCancel, renaming }) {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    inputRef.current?.focus();
+    inputRef.current?.select();
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const v = (value || '').trim();
+        if (v) onConfirm();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open, value, onConfirm, onCancel]);
+
+  if (!open) return null;
+  return (
+    <div className="modal-overlay" onClick={onCancel} role="dialog" aria-modal="true" aria-labelledby="rename-file-modal-title">
+      <div className="modal-dialog modal--create" onClick={(e) => e.stopPropagation()}>
+        <h2 id="rename-file-modal-title" className="modal-title">Renommer le fichier</h2>
+        <p className="modal-message">Indiquez le nouveau nom. L&apos;extension sera conservée, les espaces seront remplacés par des underscores.</p>
+        <div className="modal-create-input-wrap">
+          <input
+            ref={inputRef}
+            type="text"
+            className="modal-create-input"
+            placeholder="ex. mon document"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            aria-label="Nouveau nom du fichier"
+            disabled={renaming}
+          />
+        </div>
+        <div className="modal-actions">
+          <button type="button" className="modal-btn modal-btn--cancel" onClick={onCancel} disabled={renaming}>
+            Annuler
+          </button>
+          <button
+            type="button"
+            className="modal-btn modal-btn--confirm modal-btn--create"
+            onClick={() => (value || '').trim() && onConfirm()}
+            disabled={renaming || !(value || '').trim()}
+          >
+            {renaming ? 'Renommage…' : 'Renommer'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CreateFileModal({ open, value, onChange, onConfirm, onCancel, creating }) {
   const inputRef = useRef(null);
 
@@ -319,6 +384,10 @@ export default function App() {
   const [showCreateFileModal, setShowCreateFileModal] = useState(false);
   const [createFileName, setCreateFileName] = useState('');
   const [createFileLoading, setCreateFileLoading] = useState(false);
+  const [showRenameFileModal, setShowRenameFileModal] = useState(false);
+  const [renameFilePath, setRenameFilePath] = useState(null);
+  const [renameFileName, setRenameFileName] = useState('');
+  const [renameFileLoading, setRenameFileLoading] = useState(false);
   const [trashFiles, setTrashFiles] = useState([]);
   const [showTrashModal, setShowTrashModal] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -500,6 +569,44 @@ export default function App() {
   const handleCreateFileOpen = () => {
     setCreateFileName('');
     setShowCreateFileModal(true);
+  };
+
+  const handleRenameClick = (filePath, fileName, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const ext = fileName.match(/\.(md|txt)$/i)?.[0] || '';
+    const base = fileName.slice(0, -ext.length);
+    setRenameFilePath(filePath);
+    setRenameFileName(base.replace(/_/g, ' '));
+    setShowRenameFileModal(true);
+  };
+
+  const handleRenameFileSubmit = async () => {
+    const name = renameFileName.trim();
+    if (!name || !renameFilePath) return;
+    setUploadError(null);
+    setRenameFileLoading(true);
+    try {
+      const r = await fetch(`${API}/files/${encodeURIComponent(renameFilePath)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newName: name }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setUploadError(data.error || `Erreur ${r.status}`);
+        return;
+      }
+      setShowRenameFileModal(false);
+      setRenameFilePath(null);
+      setRenameFileName('');
+      if (currentPath === renameFilePath) setCurrentPath(data.path);
+      fetchFiles();
+    } catch (err) {
+      setUploadError(err.message || 'Erreur réseau.');
+    } finally {
+      setRenameFileLoading(false);
+    }
   };
 
   const handleCreateFileSubmit = async () => {
@@ -781,7 +888,16 @@ export default function App() {
               </a>
               <button
                 type="button"
-                className="file-list-delete"
+                className="file-list-action file-list-rename"
+                title="Renommer ce fichier"
+                onClick={(e) => handleRenameClick(f.path, f.name, e)}
+                aria-label={`Renommer ${f.name}`}
+              >
+                <PencilIcon className="file-list-action-icon" />
+              </button>
+              <button
+                type="button"
+                className="file-list-action file-list-delete"
                 title="Supprimer ce fichier"
                 onClick={(e) => handleDeleteClick(f.path, e)}
                 aria-label={`Supprimer ${f.name}`}
@@ -967,6 +1083,18 @@ export default function App() {
           </button>
         </footer>
       </div>
+      <RenameFileModal
+        open={showRenameFileModal}
+        value={renameFileName}
+        onChange={setRenameFileName}
+        onConfirm={handleRenameFileSubmit}
+        onCancel={() => {
+          setShowRenameFileModal(false);
+          setRenameFilePath(null);
+          setRenameFileName('');
+        }}
+        renaming={renameFileLoading}
+      />
       <CreateFileModal
         open={showCreateFileModal}
         value={createFileName}

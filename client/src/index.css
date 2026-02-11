@@ -298,7 +298,7 @@ body {
   min-width: 0;
 }
 
-.file-list-delete {
+.file-list-action {
   flex-shrink: 0;
   width: 28px;
   padding: 0;
@@ -312,6 +312,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.file-list-action-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.file-list-rename:hover {
+  color: var(--accent);
+  background: rgba(122, 184, 212, 0.12);
 }
 
 .file-list-delete:hover {

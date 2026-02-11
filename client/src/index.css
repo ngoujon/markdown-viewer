@@ -163,6 +163,69 @@ body {
   color: var(--accent);
 }
 
+.trash-section {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.trash-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.4rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  text-align: left;
+}
+
+.trash-toggle:hover {
+  color: var(--text);
+  background: rgba(122, 184, 212, 0.12);
+}
+
+.trash-toggle-icon {
+  font-size: 0.7rem;
+}
+
+.trash-list .file-list-item {
+  flex-wrap: wrap;
+}
+
+.trash-item-name {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-list-restore {
+  flex-shrink: 0;
+  padding: 0.35rem 0.6rem;
+  margin: 0.25rem 0.5rem 0.25rem 0;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.file-list-restore:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
 .viewer-wrap {
   flex: 1;
   display: flex;

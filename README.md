@@ -4,7 +4,8 @@ Application web pour lire des fichiers Markdown comme des pages : liste des fich
 
 ## Fonctionnalités
 
-- **Liste des fichiers** : affichage de tous les `.md` du dossier `files` (y compris dans les sous-dossiers)
+- **Liste des fichiers** : affichage de tous les `.md` et `.txt` du dossier `files` (y compris dans les sous-dossiers)
+- **Corbeille** : les fichiers supprimés sont déplacés dans une corbeille et peuvent être restaurés ; en cas de conflit de nom, un suffixe `_restored_` + datetime est ajouté
 - **Rendu Markdown** : affichage en HTML avec `react-markdown`
 - **Export PDF** : bouton « Imprimer » qui génère un PDF côté serveur (Puppeteer/Chromium) et ouvre une fenêtre pour imprimer ou enregistrer en PDF
 - **Impression** : les titres de niveau 1 (`#`) provoquent un saut de page pour un rendu type chapitres
@@ -99,6 +100,9 @@ markdown-viewer/
 
 ## API
 
-- `GET /api/files` : liste des fichiers `.md` (path + name)
-- `GET /api/files/:path` : contenu brut du fichier Markdown
+- `GET /api/files` : liste des fichiers `.md` et `.txt`
+- `GET /api/files/:path` : contenu brut du fichier
+- `DELETE /api/files/:path` : déplacer dans la corbeille
+- `GET /api/trash` : liste des fichiers dans la corbeille
+- `POST /api/trash/restore` : restaurer un fichier (body `{ path }`)
 - `GET /api/export-pdf?path=...` : génération et téléchargement du PDF (Puppeteer)

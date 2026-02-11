@@ -10,6 +10,7 @@ import { getPrintHtml } from './pdf-template.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FILES_DIR = process.env.FILES_DIR || path.join(__dirname, '..', 'files');
+const TRASH_DIR = path.join(FILES_DIR, '.trash');
 const STATIC_DIR = process.env.STATIC_DIR || path.join(__dirname, '..', 'client', 'dist');
 
 const ALLOWED_EXT = ['.md', '.txt'];
@@ -40,6 +41,7 @@ async function getListedFiles(dir, base = '') {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
+    if (entry.name === '.trash') continue;
     const rel = path.join(base, entry.name);
     if (entry.isDirectory()) {
       const sub = await getListedFiles(path.join(dir, entry.name), rel);
@@ -64,6 +66,15 @@ async function getListedFiles(dir, base = '') {
 function safePath(relativePath) {
   const normalized = path.normalize(relativePath).replace(/^(\.\.(\/|\\|$))+/, '');
   return path.join(FILES_DIR, normalized);
+}
+
+function safeTrashPath(relativePath) {
+  const normalized = path.normalize(relativePath).replace(/^(\.\.(\/|\\|$))+/, '');
+  return path.join(TRASH_DIR, normalized);
+}
+
+function timestampSuffix() {
+  return new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
 }
 
 app.get('/api/files', async (req, res) => {
@@ -123,8 +134,66 @@ app.delete('/api/files/*', async (req, res) => {
     if (!stat.isFile()) {
       return res.status(400).json({ error: 'Not a file' });
     }
-    await fs.unlink(filePath);
+    let trashDest = safeTrashPath(relativePath);
+    if (!trashDest.startsWith(TRASH_DIR)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    await fs.mkdir(path.dirname(trashDest), { recursive: true });
+    if (await fs.access(trashDest).then(() => true).catch(() => false)) {
+      const ext = path.extname(trashDest);
+      const base = path.basename(trashDest, ext);
+      const dir = path.dirname(trashDest);
+      trashDest = path.join(dir, `${base}_${timestampSuffix()}${ext}`);
+    }
+    await fs.rename(filePath, trashDest);
     res.status(204).send();
+  } catch (err) {
+    if (err.code === 'ENOENT') return res.status(404).json({ error: 'Not found' });
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/trash', async (req, res) => {
+  try {
+    await fs.mkdir(TRASH_DIR, { recursive: true });
+    const files = await getListedFiles(TRASH_DIR);
+    res.json(files);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/trash/restore', express.json(), async (req, res) => {
+  const relativePath = req.body?.path;
+  if (!relativePath || typeof relativePath !== 'string' || relativePath.includes('..')) {
+    return res.status(400).json({ error: 'Invalid path' });
+  }
+  const trashPath = safeTrashPath(relativePath);
+  if (!trashPath.startsWith(TRASH_DIR)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  try {
+    const stat = await fs.stat(trashPath);
+    if (!stat.isFile()) {
+      return res.status(400).json({ error: 'Not a file' });
+    }
+    let restoreDest = safePath(relativePath);
+    if (!restoreDest.startsWith(FILES_DIR)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const ext = path.extname(restoreDest);
+    const base = path.basename(restoreDest, ext);
+    const dir = path.dirname(restoreDest);
+    const exists = await fs.access(restoreDest).then(() => true).catch(() => false);
+    if (exists) {
+      restoreDest = path.join(dir, `${base}_restored_${timestampSuffix()}${ext}`);
+    }
+    await fs.mkdir(path.dirname(restoreDest), { recursive: true });
+    await fs.rename(trashPath, restoreDest);
+    const restoredName = path.basename(restoreDest);
+    res.json({ ok: true, path: path.relative(FILES_DIR, restoreDest).replace(/\\/g, '/'), name: restoredName });
   } catch (err) {
     if (err.code === 'ENOENT') return res.status(404).json({ error: 'Not found' });
     console.error(err);

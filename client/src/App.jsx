@@ -52,7 +52,9 @@ export default function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(null); // { filePath }
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [trashFiles, setTrashFiles] = useState([]);
+  const [showTrash, setShowTrash] = useState(false);
 
   const fetchFiles = () => {
     fetch(`${API}/files`)
@@ -69,6 +71,17 @@ export default function App() {
       })
       .then(setFiles)
       .catch((e) => setError(e.message));
+  };
+
+  const fetchTrash = () => {
+    fetch(`${API}/trash`)
+      .then(async (r) => {
+        const text = await r.text();
+        if (!r.ok) return [];
+        return text ? JSON.parse(text) : [];
+      })
+      .then(setTrashFiles)
+      .catch(() => setTrashFiles([]));
   };
 
   const handleDragOver = (e) => {
@@ -103,6 +116,28 @@ export default function App() {
       if (currentPath === filePath) setCurrentPath(null);
       setUploadError(null);
       fetchFiles();
+      fetchTrash();
+    } catch (err) {
+      setUploadError(err.message || 'Erreur réseau.');
+    }
+  };
+
+  const handleRestore = async (trashPath) => {
+    try {
+      const r = await fetch(`${API}/trash/restore`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: trashPath }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setUploadError(data.error || 'Impossible de restaurer le fichier.');
+        return;
+      }
+      setUploadError(null);
+      fetchFiles();
+      fetchTrash();
+      setCurrentPath(data.path);
     } catch (err) {
       setUploadError(err.message || 'Erreur réseau.');
     }
@@ -137,8 +172,14 @@ export default function App() {
     }
   };
 
+  const refreshAll = () => {
+    fetchFiles();
+    fetchTrash();
+  };
+
   useEffect(() => {
     fetchFiles();
+    fetchTrash();
   }, []);
 
   useEffect(() => {
@@ -193,7 +234,7 @@ export default function App() {
       >
         <div className="sidebar-header">
           <h2>Fichiers</h2>
-          <button type="button" className="btn-refresh" onClick={fetchFiles} title="Actualiser la liste">
+          <button type="button" className="btn-refresh" onClick={refreshAll} title="Actualiser la liste">
             Actualiser
           </button>
         </div>
@@ -233,6 +274,37 @@ export default function App() {
             </li>
           ))}
         </ul>
+        {trashFiles.length > 0 && (
+          <div className="trash-section">
+            <button
+              type="button"
+              className="trash-toggle"
+              onClick={() => setShowTrash(!showTrash)}
+              aria-expanded={showTrash}
+            >
+              <span className="trash-toggle-icon">{showTrash ? '▼' : '▶'}</span>
+              Corbeille ({trashFiles.length})
+            </button>
+            {showTrash && (
+              <ul className="file-list trash-list">
+                {trashFiles.map((f) => (
+                  <li key={f.path} className="file-list-item">
+                    <span className="trash-item-name">{f.name}</span>
+                    <button
+                      type="button"
+                      className="file-list-restore"
+                      title="Restaurer ce fichier"
+                      onClick={() => handleRestore(f.path)}
+                      aria-label={`Restaurer ${f.name}`}
+                    >
+                      ↩ Restaurer
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </aside>
       <div className="viewer-wrap">
         {currentPath && (
@@ -264,9 +336,9 @@ export default function App() {
       </div>
       <ConfirmModal
         open={!!confirmDelete}
-        title="Supprimer le fichier"
-        message={confirmDelete ? `Voulez-vous vraiment supprimer « ${confirmDelete.split('/').pop()} » ?` : ''}
-        confirmLabel="Supprimer"
+        title="Déplacer dans la corbeille"
+        message={confirmDelete ? `Déplacer « ${confirmDelete.split('/').pop()} » dans la corbeille ? Vous pourrez le restaurer plus tard.` : ''}
+        confirmLabel="Déplacer"
         cancelLabel="Annuler"
         variant="danger"
         onConfirm={handleDeleteConfirm}

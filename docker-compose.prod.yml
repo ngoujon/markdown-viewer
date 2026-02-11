@@ -1,0 +1,13 @@
+# Mode production (build statique)
+services:
+  markdown-viewer:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./files:/app/files:ro
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - FILES_DIR=/app/files
+      - STATIC_DIR=/app/client/dist

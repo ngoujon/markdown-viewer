@@ -32,27 +32,20 @@ cd markdown-viewer
 
 ### Option 1 : Lancer avec Docker (recommandé pour localhost)
 
-**Mode développement (hot reload)** — les modifications du code sont immédiatement visibles :
+`docker compose up` démarre `npm run dev` avec hot reload — les modifications sont immédiatement visibles.
 
 1. Placez vos fichiers Markdown dans le dossier **`files`** à la racine (créer le dossier si besoin).
 2. Démarrer :
 
 ```bash
-npm run docker:dev
-# ou : docker compose -f docker-compose.dev.yml up --build
+docker compose up --build
+# ou : npm run docker:up
 ```
 
 3. Ouvrir **http://localhost:3000**. Toute modification dans `client/` ou `server/` est reflétée instantanément.
+4. Choisir un fichier dans la liste, puis utiliser le bouton **« Imprimer »** pour générer un PDF et l’ouvrir (impression ou enregistrement en PDF). Dans la fenêtre d’impression du navigateur, décocher « En-têtes et pieds de page » pour éviter URL, date et numéros de page.
 
-**Mode production** (build statique, pour déploiement) :
-
-```bash
-npm run docker:up
-# ou : docker compose up --build
-```
-
-Après des modifications, reconstruire sans cache : `npm run docker:build && docker compose up`.
-5. Choisir un fichier dans la liste, puis utiliser le bouton **« Imprimer »** pour générer un PDF et l’ouvrir (impression ou enregistrement en PDF). Dans la fenêtre d’impression du navigateur, décocher « En-têtes et pieds de page » pour éviter URL, date et numéros de page.
+**Mode production** (build statique, pour déploiement) : `docker compose -f docker-compose.prod.yml up --build`
 
 ### Option 2 : Développement local (sans Docker)
 
@@ -99,9 +92,9 @@ markdown-viewer/
 │   ├── index.js        # routes /api/files, /api/files/*, /api/export-pdf
 │   └── pdf-template.js # template HTML pour le PDF
 ├── Dockerfile          # Production (build statique)
-├── Dockerfile.dev      # Développement (hot reload)
-├── docker-compose.yml  # Production
-└── docker-compose.dev.yml  # Développement (volumes montés)
+├── Dockerfile.dev      # Développement (npm run dev, hot reload)
+├── docker-compose.yml  # Par défaut : mode dev (npm run dev)
+└── docker-compose.prod.yml  # Production (build statique)
 ```
 
 ## API

@@ -1,13 +1,17 @@
 services:
   markdown-viewer:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
     volumes:
-      # Montez votre dossier de fichiers markdown ici
-      - ./files:/app/files:ro
+      - ./client:/app/client
+      - /app/client/node_modules
+      - ./server:/app/server
+      - /app/server/node_modules
+      - ./files:/app/files
     environment:
-      - NODE_ENV=production
-      - PORT=3000
+      - NODE_ENV=development
+      - PORT=3001
       - FILES_DIR=/app/files
-      - STATIC_DIR=/app/client/dist

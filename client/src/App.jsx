@@ -349,19 +349,26 @@ export default function App() {
     }
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (!currentPath) return;
     setPrintError(null);
     setPdfLoading(true);
     const pdfUrl = `${API}/export-pdf?path=${encodeURIComponent(currentPath)}`;
-    const a = document.createElement('a');
-    a.href = pdfUrl;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setPdfLoading(false);
+    try {
+      const res = await fetch(pdfUrl);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Erreur ${res.status}`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+      setPrintError(err.message || 'Erreur lors de la génération du PDF');
+    } finally {
+      setPdfLoading(false);
+    }
   };
 
   const handleRestore = async (trashPath) => {

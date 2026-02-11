@@ -52,6 +52,14 @@ function PrinterIcon({ className }) {
   );
 }
 
+function ArrowDownTrayIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+    </svg>
+  );
+}
+
 const API = '/api';
 const MINIMAP_STORAGE_KEY = 'markdown-viewer-minimap';
 
@@ -532,6 +540,35 @@ export default function App() {
     }
   };
 
+  const handleDownloadPdf = async () => {
+    if (!currentPath) return;
+    setPrintError(null);
+    setPdfLoading(true);
+    const pdfUrl = `${API}/export-pdf?path=${encodeURIComponent(currentPath)}`;
+    try {
+      const res = await fetch(pdfUrl);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Erreur ${res.status}`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const filename = (currentFile?.name || currentPath).replace(/\.(md|txt)$/i, '') + '.pdf';
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setPrintError(err.message || 'Erreur lors de la génération du PDF');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   const handleRestore = async (trashPath) => {
     try {
       const r = await fetch(`${API}/trash/restore`, {
@@ -969,10 +1006,24 @@ export default function App() {
               <button
                 type="button"
                 className="doc-header-btn-icon doc-header-btn-print"
+                onClick={handleDownloadPdf}
+                disabled={pdfLoading}
+                title="Télécharger le PDF (enregistrement direct, fonctionne hors ligne)"
+                aria-label="Télécharger le PDF"
+              >
+                {pdfLoading ? (
+                  <ArrowPathIcon className="doc-header-icon doc-header-icon--spin" />
+                ) : (
+                  <ArrowDownTrayIcon className="doc-header-icon" />
+                )}
+              </button>
+              <button
+                type="button"
+                className="doc-header-btn-icon doc-header-btn-print"
                 onClick={handlePrint}
                 disabled={pdfLoading}
-                title="Imprimer ou enregistrer en PDF"
-                aria-label="Imprimer ou enregistrer en PDF"
+                title="Ouvrir dans un nouvel onglet pour imprimer"
+                aria-label="Ouvrir le PDF pour imprimer"
               >
                 {pdfLoading ? (
                   <ArrowPathIcon className="doc-header-icon doc-header-icon--spin" />

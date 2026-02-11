@@ -17,6 +17,57 @@
   box-sizing: border-box;
 }
 
+/* Scrollbar personnalisée : large, blanche, toujours visible quand scrollable */
+.viewer,
+.sidebar-file-list,
+.trash-modal-list,
+.markdown pre {
+  scrollbar-width: thin;
+  scrollbar-color: #fff var(--surface-alt);
+  scrollbar-gutter: stable;
+}
+
+.viewer::-webkit-scrollbar,
+.sidebar-file-list::-webkit-scrollbar,
+.trash-modal-list::-webkit-scrollbar {
+  width: 14px;
+}
+
+.markdown pre::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+.viewer::-webkit-scrollbar-track,
+.sidebar-file-list::-webkit-scrollbar-track,
+.trash-modal-list::-webkit-scrollbar-track,
+.markdown pre::-webkit-scrollbar-track {
+  background: var(--surface-alt);
+}
+
+.viewer::-webkit-scrollbar-thumb,
+.sidebar-file-list::-webkit-scrollbar-thumb,
+.trash-modal-list::-webkit-scrollbar-thumb,
+.markdown pre::-webkit-scrollbar-thumb {
+  background: #fff;
+  border-radius: 7px;
+  border: 3px solid var(--surface-alt);
+}
+
+.viewer::-webkit-scrollbar-thumb:hover,
+.sidebar-file-list::-webkit-scrollbar-thumb:hover,
+.trash-modal-list::-webkit-scrollbar-thumb:hover,
+.markdown pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.viewer::-webkit-scrollbar-thumb:active,
+.sidebar-file-list::-webkit-scrollbar-thumb:active,
+.trash-modal-list::-webkit-scrollbar-thumb:active,
+.markdown pre::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 255, 255, 0.95);
+}
+
 html, body {
   margin: 0;
   height: 100%;

@@ -25,6 +25,22 @@ function PencilIcon({ className }) {
   );
 }
 
+function ChevronLeftIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+    </svg>
+  );
+}
+
+function Bars3Icon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+    </svg>
+  );
+}
+
 function PrinterIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="currentColor" strokeWidth={32} strokeLinejoin="round" className={className}>
@@ -388,6 +404,7 @@ export default function App() {
   const [renameFilePath, setRenameFilePath] = useState(null);
   const [renameFileName, setRenameFileName] = useState('');
   const [renameFileLoading, setRenameFileLoading] = useState(false);
+  const [sidebarHidden, setSidebarHidden] = useState(false);
   const [trashFiles, setTrashFiles] = useState([]);
   const [showTrashModal, setShowTrashModal] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -799,7 +816,7 @@ export default function App() {
   return (
     <div className="app">
       <aside
-        className={`sidebar ${isDragging ? 'sidebar--drag-over' : ''}`}
+        className={`sidebar ${isDragging ? 'sidebar--drag-over' : ''} ${sidebarHidden ? 'sidebar--hidden' : ''}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -845,6 +862,9 @@ export default function App() {
             </button>
             <button type="button" className="btn-refresh btn-refresh--icon" onClick={refreshAll} title="Actualiser la liste">
               <ArrowPathIcon className="btn-refresh-icon" />
+            </button>
+            <button type="button" className="btn-refresh btn-refresh--icon" onClick={() => setSidebarHidden(true)} title="Masquer la barre latérale" aria-label="Masquer la barre latérale">
+              <ChevronLeftIcon className="btn-refresh-icon" />
             </button>
           </div>
         </div>
@@ -916,7 +936,18 @@ export default function App() {
           🗑 Corbeille {trashFiles.length > 0 && `(${trashFiles.length})`}
         </button>
       </aside>
-      <div className="viewer-wrap">
+      {sidebarHidden && (
+        <button
+          type="button"
+          className="sidebar-toggle-floating"
+          onClick={() => setSidebarHidden(false)}
+          title="Afficher la barre latérale"
+          aria-label="Afficher la barre latérale"
+        >
+          <Bars3Icon className="sidebar-toggle-floating-icon" />
+        </button>
+      )}
+      <div className={`viewer-wrap ${sidebarHidden ? 'viewer-wrap--sidebar-hidden' : ''}`}>
         {currentPath && (
           <header className="doc-header">
             <div className="doc-header-left">

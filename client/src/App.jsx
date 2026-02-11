@@ -20,7 +20,17 @@ export default function App() {
 
   const fetchFiles = () => {
     fetch(`${API}/files`)
-      .then((r) => r.json())
+      .then(async (r) => {
+        const text = await r.text();
+        if (!r.ok) {
+          let err = {};
+          try {
+            if (text) err = JSON.parse(text);
+          } catch {}
+          throw new Error(err.error || `Erreur ${r.status}`);
+        }
+        return text ? JSON.parse(text) : [];
+      })
       .then(setFiles)
       .catch((e) => setError(e.message));
   };

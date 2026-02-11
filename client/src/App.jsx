@@ -3,6 +3,35 @@ import ReactMarkdown from 'react-markdown';
 
 const API = '/api';
 
+function ConfirmModal({ open, title, message, confirmLabel, cancelLabel, onConfirm, onCancel, variant = 'danger' }) {
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') onCancel();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open, onCancel]);
+
+  if (!open) return null;
+  return (
+    <div className="modal-overlay" onClick={onCancel} role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div className={`modal-dialog modal--${variant}`} onClick={(e) => e.stopPropagation()}>
+        <h2 id="modal-title" className="modal-title">{title}</h2>
+        <p className="modal-message">{message}</p>
+        <div className="modal-actions">
+          <button type="button" className="modal-btn modal-btn--cancel" onClick={onCancel}>
+            {cancelLabel}
+          </button>
+          <button type="button" className="modal-btn modal-btn--confirm" onClick={onConfirm}>
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function isAllowedFile(name) {
   const n = name.toLowerCase();
   return n.endsWith('.md') || n.endsWith('.txt');
@@ -17,6 +46,7 @@ export default function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null); // { filePath }
 
   const fetchFiles = () => {
     fetch(`${API}/files`)
@@ -47,10 +77,16 @@ export default function App() {
     if (!e.currentTarget.contains(e.relatedTarget)) setIsDragging(false);
   };
 
-  const handleDelete = async (filePath, e) => {
+  const handleDeleteClick = (filePath, e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!window.confirm(`Supprimer le fichier « ${filePath.split('/').pop()} » ?`)) return;
+    setConfirmDelete(filePath);
+  };
+
+  const handleDeleteConfirm = async () => {
+    const filePath = confirmDelete;
+    if (!filePath) return;
+    setConfirmDelete(null);
     try {
       const r = await fetch(`${API}/files/${encodeURIComponent(filePath)}`, { method: 'DELETE' });
       if (!r.ok) {
@@ -183,7 +219,7 @@ export default function App() {
                 type="button"
                 className="file-list-delete"
                 title="Supprimer ce fichier"
-                onClick={(e) => handleDelete(f.path, e)}
+                onClick={(e) => handleDeleteClick(f.path, e)}
                 aria-label={`Supprimer ${f.name}`}
               >
                 ×
@@ -220,6 +256,16 @@ export default function App() {
           )}
         </div>
       </div>
+      <ConfirmModal
+        open={!!confirmDelete}
+        title="Supprimer le fichier"
+        message={confirmDelete ? `Voulez-vous vraiment supprimer « ${confirmDelete.split('/').pop()} » ?` : ''}
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        variant="danger"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

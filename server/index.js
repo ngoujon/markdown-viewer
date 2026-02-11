@@ -243,7 +243,7 @@ app.get('/api/export-pdf', async (req, res) => {
 
     const filename = path.basename(filePath, path.extname(filePath)) + '.pdf';
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
     res.setHeader('Content-Length', buf.length);
     res.setHeader('Cache-Control', 'no-transform'); // évite que des proxies modifient le binaire
     res.send(buf); // Express gère correctement l'envoi binaire d'un Buffer (res.end + 'binary' peut corrompre)

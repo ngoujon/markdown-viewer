@@ -127,37 +127,16 @@ export default function App() {
   const handlePrint = () => {
     if (!currentPath) return;
     setPrintError(null);
-    const printWindow = window.open('', '_blank', 'noopener');
-    if (!printWindow) {
-      setPrintError('Autorisez les pop-ups pour l\'impression PDF.');
-      return;
-    }
     setPdfLoading(true);
-    fetch(`${API}/export-pdf?path=${encodeURIComponent(currentPath)}`)
-      .then((r) => {
-        if (!r.ok) throw new Error('Export impossible');
-        return r.arrayBuffer();
-      })
-      .then((arrayBuffer) => {
-        if (arrayBuffer.byteLength === 0) throw new Error('PDF vide');
-        const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        let printed = false;
-        const doPrint = () => {
-          if (printed) return;
-          printed = true;
-          printWindow.print();
-          printWindow.onafterprint = () => {
-            printWindow.close();
-            URL.revokeObjectURL(url);
-          };
-        };
-        printWindow.location.href = url;
-        printWindow.onload = doPrint;
-        setTimeout(doPrint, 1500);
-      })
-      .catch((e) => setPrintError(e.message))
-      .finally(() => setPdfLoading(false));
+    const pdfUrl = `${API}/export-pdf?path=${encodeURIComponent(currentPath)}`;
+    const a = document.createElement('a');
+    a.href = pdfUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setPdfLoading(false);
   };
 
   const handleRestore = async (trashPath) => {

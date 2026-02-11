@@ -505,7 +505,7 @@ export default function App() {
   useEffect(() => {
     if (!docSearchQuery.trim()) return;
     scrollToDocSearchMatch(docSearchIndex);
-  }, [docSearchIndex, docSearchQuery, scrollToDocSearchMatch]);
+  }, [docSearchIndex, docSearchQuery, content, scrollToDocSearchMatch]);
 
   const kpis = {
     totalFiles: files.length,
@@ -577,6 +577,10 @@ export default function App() {
                 onClick={(e) => {
                   e.preventDefault();
                   setCurrentPath(f.path);
+                  if (searchQuery.trim()) {
+                    setDocSearchQuery(searchQuery.trim());
+                    setDocSearchIndex(0);
+                  }
                 }}
               >
                 {f.name}

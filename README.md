@@ -36,33 +36,36 @@ cd markdown-viewer
 2. Construire et démarrer :
 
 ```bash
-docker compose up --build
+npm run docker:up
+# ou : docker compose up --build
 ```
 
-3. Ouvrir **http://localhost:3000** dans le navigateur.
-4. Choisir un fichier dans la liste, puis utiliser le bouton **« Imprimer »** pour générer un PDF et l’ouvrir (impression ou enregistrement en PDF). Dans la fenêtre d’impression du navigateur, décocher « En-têtes et pieds de page » pour éviter URL, date et numéros de page.
+3. Si Docker affiche une ancienne version après des modifications, reconstruire sans cache :
+
+```bash
+npm run docker:build
+docker compose up
+```
+
+4. Ouvrir **http://localhost:3000** dans le navigateur.
+5. Choisir un fichier dans la liste, puis utiliser le bouton **« Imprimer »** pour générer un PDF et l’ouvrir (impression ou enregistrement en PDF). Dans la fenêtre d’impression du navigateur, décocher « En-têtes et pieds de page » pour éviter URL, date et numéros de page.
 
 ### Option 2 : Développement local (sans Docker)
 
 1. Créer le dossier `files` à la racine et y mettre vos fichiers `.md`.
 
-2. Installer et lancer l’API (terminal 1) :
+2. Installer les dépendances et lancer client + serveur :
 
 ```bash
-cd server && npm install && npm run dev
+npm install && cd client && npm install && cd ../server && npm install && cd ..
+npm run dev
 ```
 
-L’API tourne sur **http://localhost:3001**.
+Le client tourne sur **http://localhost:5173** et le serveur sur **http://localhost:3001** (proxy Vite).
 
-3. Installer et lancer le client (terminal 2) :
+3. Ouvrir **http://localhost:5173**. Les fichiers sont lus depuis le dossier `files` à la racine.
 
-```bash
-cd client && npm install && npm run dev
-```
-
-Le client tourne sur **http://localhost:5173** et envoie les appels `/api` au serveur (proxy Vite).
-
-4. Ouvrir **http://localhost:5173**. Les fichiers sont lus depuis le dossier `files` à la racine.
+Production locale (même version que Docker) : `npm run start` (build puis serveur sur **http://localhost:3001**).
 
 **Note** : L’export PDF en local nécessite Chromium/Chrome installé sur la machine. Avec `puppeteer-core`, définir éventuellement `PUPPETEER_EXECUTABLE_PATH` vers l’exécutable Chromium/Chrome.
 

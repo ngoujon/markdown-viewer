@@ -12,12 +12,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Server
-COPY server/package.json server/
+# Server : package.json d'abord (cache npm install)
+COPY server/package.json server/package-lock.json* server/
 RUN cd server && npm install --omit=dev
 
-# Client
-COPY client/package.json client/
+# Client : build avec la dernière version du code
+COPY client/package.json client/package-lock.json* client/
 RUN cd client && npm install
 COPY client/ client/
 RUN cd client && npm run build
@@ -26,6 +26,7 @@ RUN cd client && npm run build
 RUN mkdir -p /app/files
 COPY files/ /app/files/
 
+# Server : code source (après le build client pour éviter un cache obsolète)
 COPY server/ server/
 
 ENV NODE_ENV=production

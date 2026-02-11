@@ -61,9 +61,11 @@ npm install && cd client && npm install && cd ../server && npm install && cd ..
 npm run dev
 ```
 
-Le client tourne sur **http://localhost:5173** et le serveur sur **http://localhost:3001** (proxy Vite).
+Le client tourne sur **http://localhost:3000** et le serveur sur **http://localhost:3001** (proxy Vite). Les modifications sont visibles immédiatement grâce au hot reload.
 
-3. Ouvrir **http://localhost:5173**. Les fichiers sont lus depuis le dossier `files` à la racine.
+3. Ouvrir **http://localhost:3000**. Les fichiers sont lus depuis le dossier `files` à la racine.
+
+**Note** : Si Docker tourne déjà sur le port 3000, arrêtez-le (`docker compose down`) avant de lancer `npm run dev` pour éviter un conflit de port.
 
 Production locale (même version que Docker) : `npm run start` (build puis serveur sur **http://localhost:3001**).
 

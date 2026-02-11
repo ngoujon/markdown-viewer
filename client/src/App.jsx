@@ -248,8 +248,10 @@ export default function App() {
   const [matchingPaths, setMatchingPaths] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [docSearchQuery, setDocSearchQuery] = useState('');
+  const [docSearchDebounced, setDocSearchDebounced] = useState('');
   const [docSearchIndex, setDocSearchIndex] = useState(0);
   const [docSearchCount, setDocSearchCount] = useState(0);
+  const docSearchTimeoutRef = useRef(null);
   const searchTimeoutRef = useRef(null);
   const viewerRef = useRef(null);
   const markdownContentRef = useRef(null);
@@ -426,7 +428,7 @@ export default function App() {
           setMatchingPaths([]);
           setSearchLoading(false);
         });
-    }, 250);
+    }, 2000);
     return () => {
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
@@ -492,10 +494,24 @@ export default function App() {
     return `${n} octet${n !== 1 ? 's' : ''}`;
   };
 
-  useHighlightInDocument(markdownContentRef, content, docSearchQuery);
+  useEffect(() => {
+    const q = docSearchQuery.trim();
+    if (!q) {
+      if (docSearchTimeoutRef.current) clearTimeout(docSearchTimeoutRef.current);
+      setDocSearchDebounced('');
+      return;
+    }
+    if (docSearchTimeoutRef.current) clearTimeout(docSearchTimeoutRef.current);
+    docSearchTimeoutRef.current = setTimeout(() => setDocSearchDebounced(q), 2000);
+    return () => {
+      if (docSearchTimeoutRef.current) clearTimeout(docSearchTimeoutRef.current);
+    };
+  }, [docSearchQuery]);
+
+  useHighlightInDocument(markdownContentRef, content, docSearchDebounced);
 
   useEffect(() => {
-    if (!docSearchQuery.trim()) {
+    if (!docSearchDebounced) {
       setDocSearchCount(0);
       return;
     }
@@ -503,7 +519,7 @@ export default function App() {
     if (!el) return;
     const marks = el.querySelectorAll('.doc-search-highlight');
     setDocSearchCount(marks.length);
-  }, [content, docSearchQuery]);
+  }, [content, docSearchDebounced]);
 
   const scrollToDocSearchMatch = useCallback((index) => {
     const el = markdownContentRef?.current;
@@ -515,9 +531,9 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!docSearchQuery.trim()) return;
+    if (!docSearchDebounced) return;
     scrollToDocSearchMatch(docSearchIndex);
-  }, [docSearchIndex, docSearchQuery, content, scrollToDocSearchMatch]);
+  }, [docSearchIndex, docSearchDebounced, content, scrollToDocSearchMatch]);
 
   const kpis = {
     totalFiles: files.length,
@@ -603,7 +619,9 @@ export default function App() {
                   e.preventDefault();
                   setCurrentPath(f.path);
                   if (searchQuery.trim()) {
-                    setDocSearchQuery(searchQuery.trim());
+                    const q = searchQuery.trim();
+                    setDocSearchQuery(q);
+                    setDocSearchDebounced(q);
                     setDocSearchIndex(0);
                   }
                 }}
@@ -693,16 +711,18 @@ export default function App() {
             {docSearchQuery.trim() && (
               <div className="doc-search-results">
                 <span className="doc-search-count">
-                  {docSearchCount === 0
-                    ? 'Aucun résultat'
-                    : `${((docSearchIndex % docSearchCount) + docSearchCount) % docSearchCount + 1} / ${docSearchCount}`}
+                  {docSearchDebounced !== docSearchQuery.trim()
+                    ? 'Recherche…'
+                    : docSearchCount === 0
+                      ? 'Aucun résultat'
+                      : `${((docSearchIndex % docSearchCount) + docSearchCount) % docSearchCount + 1} / ${docSearchCount}`}
                 </span>
                 <div className="doc-search-nav">
                   <button
                     type="button"
                     className="doc-search-btn"
                     onClick={() => setDocSearchIndex((i) => i - 1)}
-                    disabled={docSearchCount === 0}
+                    disabled={docSearchCount === 0 || docSearchDebounced !== docSearchQuery.trim()}
                     title="Occurrence précédente"
                     aria-label="Occurrence précédente"
                   >
@@ -712,7 +732,7 @@ export default function App() {
                     type="button"
                     className="doc-search-btn"
                     onClick={() => setDocSearchIndex((i) => i + 1)}
-                    disabled={docSearchCount === 0}
+                    disabled={docSearchCount === 0 || docSearchDebounced !== docSearchQuery.trim()}
                     title="Occurrence suivante"
                     aria-label="Occurrence suivante"
                   >

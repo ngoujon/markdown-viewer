@@ -888,6 +888,12 @@ body {
   padding: 0;
 }
 
+.markdown a {
+  color: inherit;
+  text-decoration: none;
+  pointer-events: none;
+}
+
 /* Overview & KPIs */
 .overview {
   padding: 2rem;

@@ -4,7 +4,12 @@ import multer from 'multer';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { marked } from 'marked';
+import { marked, Renderer } from 'marked';
+
+/** Aucun lien cliquable : les liens markdown sont rendus comme du texte simple */
+const noLinksRenderer = new Renderer();
+noLinksRenderer.link = (href, title, text) => text || '';
+marked.use({ renderer: noLinksRenderer });
 import puppeteer from 'puppeteer-core';
 import { getPrintHtml } from './pdf-template.js';
 

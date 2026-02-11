@@ -55,6 +55,11 @@ function PrinterIcon({ className }) {
 const API = '/api';
 const MINIMAP_STORAGE_KEY = 'markdown-viewer-minimap';
 
+/** Aucun lien : les liens markdown sont rendus comme du texte simple */
+const markdownComponents = {
+  a: ({ children }) => <span>{children}</span>,
+};
+
 function DocumentMinimap({ content, viewerRef, visible }) {
   const minimapRef = useRef(null);
   const [scale, setScale] = useState(0.1);
@@ -174,7 +179,7 @@ function DocumentMinimap({ content, viewerRef, visible }) {
         >
           <div className="page minimap-page">
             <div className="markdown">
-              <ReactMarkdown>{content}</ReactMarkdown>
+              <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown>
             </div>
           </div>
         </div>
@@ -1063,7 +1068,7 @@ export default function App() {
             {!loading && currentPath && !error && (
               <div className="page">
                 <div ref={markdownContentRef} className="markdown">
-                  <ReactMarkdown>{content}</ReactMarkdown>
+                  <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown>
                 </div>
               </div>
             )}

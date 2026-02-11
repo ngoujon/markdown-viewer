@@ -1,0 +1,18 @@
+# Mode développement : hot reload, modifications immédiatement visibles sur localhost:3000
+services:
+  markdown-viewer:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app/client
+      - /app/client/node_modules  # Préserve node_modules du conteneur (évite écrasement par le mount)
+      - ./server:/app/server
+      - /app/server/node_modules
+      - ./files:/app/files
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - FILES_DIR=/app/files

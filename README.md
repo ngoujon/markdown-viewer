@@ -30,24 +30,28 @@ git clone <url-du-repo>
 cd markdown-viewer
 ```
 
-### Option 1 : Lancer avec Docker (recommandé en production)
+### Option 1 : Lancer avec Docker (recommandé pour localhost)
 
-1. Placez vos fichiers Markdown dans le dossier **`files`** à la racine du projet (créer le dossier si besoin).
-2. Construire et démarrer :
+**Mode développement (hot reload)** — les modifications du code sont immédiatement visibles :
+
+1. Placez vos fichiers Markdown dans le dossier **`files`** à la racine (créer le dossier si besoin).
+2. Démarrer :
+
+```bash
+npm run docker:dev
+# ou : docker compose -f docker-compose.dev.yml up --build
+```
+
+3. Ouvrir **http://localhost:3000**. Toute modification dans `client/` ou `server/` est reflétée instantanément.
+
+**Mode production** (build statique, pour déploiement) :
 
 ```bash
 npm run docker:up
 # ou : docker compose up --build
 ```
 
-3. Si Docker affiche une ancienne version après des modifications, reconstruire sans cache :
-
-```bash
-npm run docker:build
-docker compose up
-```
-
-4. Ouvrir **http://localhost:3000** dans le navigateur.
+Après des modifications, reconstruire sans cache : `npm run docker:build && docker compose up`.
 5. Choisir un fichier dans la liste, puis utiliser le bouton **« Imprimer »** pour générer un PDF et l’ouvrir (impression ou enregistrement en PDF). Dans la fenêtre d’impression du navigateur, décocher « En-têtes et pieds de page » pour éviter URL, date et numéros de page.
 
 ### Option 2 : Développement local (sans Docker)
@@ -94,8 +98,10 @@ markdown-viewer/
 ├── server/             # API Express
 │   ├── index.js        # routes /api/files, /api/files/*, /api/export-pdf
 │   └── pdf-template.js # template HTML pour le PDF
-├── Dockerfile          # Node 20 + Chromium + build client + serveur
-└── docker-compose.yml
+├── Dockerfile          # Production (build statique)
+├── Dockerfile.dev      # Développement (hot reload)
+├── docker-compose.yml  # Production
+└── docker-compose.dev.yml  # Développement (volumes montés)
 ```
 
 ## API

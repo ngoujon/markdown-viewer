@@ -1,0 +1,37 @@
+# Image de développement avec hot reload (Vite + Express)
+FROM node:20-bookworm-slim
+
+WORKDIR /app
+
+# Chromium pour l'export PDF
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    chromium \
+    fonts-liberation \
+    fonts-noto-core \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# Dépendances racine
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Dépendances serveur (avec dev) et client
+COPY server/package.json server/package-lock.json* server/
+RUN cd server && npm install
+
+COPY client/package.json client/package-lock.json* client/
+RUN cd client && npm install
+
+# Copie initiale du code (sera écrasée par les volumes au runtime)
+COPY server/ server/
+COPY client/ client/
+RUN mkdir -p /app/files
+
+ENV NODE_ENV=development
+ENV PORT=3001
+ENV FILES_DIR=/app/files
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]

@@ -60,6 +60,22 @@ function ArrowDownTrayIcon({ className }) {
   );
 }
 
+function SplitVerticalIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3h7.5v18h-7.5V3ZM13.75 3h6.5v18h-6.5V3" />
+    </svg>
+  );
+}
+
+function SplitHorizontalIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3.75h18v7.5H3v-7.5ZM3 13.75h18v6.5H3v-6.5Z" />
+    </svg>
+  );
+}
+
 function XMarkIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
@@ -70,6 +86,7 @@ function XMarkIcon({ className }) {
 
 const API = '/api';
 const MINIMAP_STORAGE_KEY = 'markdown-viewer-minimap';
+const SPLIT_MODE_STORAGE_KEY = 'markdown-viewer-split-mode';
 
 /** Aucun lien : les liens markdown sont rendus comme du texte simple */
 const markdownComponents = {
@@ -699,6 +716,14 @@ export default function App() {
       return true;
     }
   });
+  const [splitMode, setSplitMode] = useState(() => {
+    try {
+      const stored = localStorage.getItem(SPLIT_MODE_STORAGE_KEY);
+      return stored === 'horizontal' ? 'horizontal' : 'vertical';
+    } catch {
+      return 'vertical';
+    }
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [matchingPaths, setMatchingPaths] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -751,6 +776,20 @@ export default function App() {
       } catch {}
       return next;
     });
+  };
+
+  const setSplitModeVertical = () => {
+    setSplitMode('vertical');
+    try {
+      localStorage.setItem(SPLIT_MODE_STORAGE_KEY, 'vertical');
+    } catch {}
+  };
+
+  const setSplitModeHorizontal = () => {
+    setSplitMode('horizontal');
+    try {
+      localStorage.setItem(SPLIT_MODE_STORAGE_KEY, 'horizontal');
+    } catch {}
   };
 
   const fetchFiles = () => {
@@ -1239,7 +1278,7 @@ export default function App() {
             })}
           </div>
         )}
-        <div className={`viewer-content ${openTabs.length >= 2 ? 'viewer-content--split' : ''}`}>
+        <div className={`viewer-content ${openTabs.length >= 2 ? `viewer-content--split viewer-content--split-${splitMode}` : ''}`}>
           {openTabs.length === 0 && (
             <div className="viewer-container">
               <div className="viewer">
@@ -1310,6 +1349,28 @@ export default function App() {
           )}
         </div>
         <footer className="status-bar">
+          {openTabs.length >= 2 && (
+            <div className="status-bar-split-group">
+              <button
+                type="button"
+                className={`status-bar-btn status-bar-btn-icon ${splitMode === 'vertical' ? 'active' : ''}`}
+                onClick={setSplitModeVertical}
+                title="Scinder verticalement (côte à côte)"
+                aria-label="Scinder verticalement"
+              >
+                <SplitVerticalIcon className="status-bar-icon" />
+              </button>
+              <button
+                type="button"
+                className={`status-bar-btn status-bar-btn-icon ${splitMode === 'horizontal' ? 'active' : ''}`}
+                onClick={setSplitModeHorizontal}
+                title="Scinder horizontalement (empilé)"
+                aria-label="Scinder horizontalement"
+              >
+                <SplitHorizontalIcon className="status-bar-icon" />
+              </button>
+            </div>
+          )}
           <button
             type="button"
             className={`status-bar-btn ${minimapEnabled ? 'active' : ''}`}

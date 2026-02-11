@@ -565,7 +565,7 @@ body {
 }
 
 .doc-search-highlight {
-  background: rgba(122, 184, 212, 0.4);
+  background: rgba(255, 225, 100, 0.55);
   color: inherit;
   padding: 0 1px;
   border-radius: 2px;

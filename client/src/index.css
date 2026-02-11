@@ -1015,9 +1015,9 @@ body {
 }
 
 .markdown h3 {
-  font-size: 1.15rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  margin: 1.25rem 0 0.5rem;
+  margin: 0.5rem 0 0.25rem;
 }
 
 .markdown p {
@@ -1025,20 +1025,33 @@ body {
 }
 
 .markdown ul, .markdown ol {
-  margin: 0 0 1rem;
+  margin: 0 0 0.5rem;
   padding-left: 1.5rem;
+}
+
+.markdown li {
+  margin-bottom: 0.1rem;
 }
 
 .markdown table {
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
+  table-layout: fixed;
 }
 
 .markdown th, .markdown td {
   border: 1px solid var(--muted);
-  padding: 0.5rem 0.75rem;
+  padding: 0.25rem 0.5rem;
   text-align: left;
+}
+
+.markdown th:first-child, .markdown td:first-child {
+  width: 75%;
+}
+
+.markdown th:last-child, .markdown td:last-child {
+  width: 25%;
 }
 
 .markdown th {

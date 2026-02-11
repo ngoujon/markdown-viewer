@@ -130,6 +130,44 @@ app.post('/api/upload', (req, res) => {
   });
 });
 
+app.post('/api/files/create', express.json(), async (req, res) => {
+  const rawName = req.body?.name;
+  if (!rawName || typeof rawName !== 'string') {
+    return res.status(400).json({ error: 'Nom requis' });
+  }
+  const base = rawName.trim().replace(/\s+/g, '_').replace(/\.md$/i, '') || 'nouveau';
+  const filename = `${base}.md`;
+  const relativePath = filename;
+  if (relativePath.includes('..') || path.dirname(relativePath) !== '.') {
+    return res.status(400).json({ error: 'Nom invalide' });
+  }
+  const filePath = safePath(relativePath);
+  if (!filePath.startsWith(FILES_DIR)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  try {
+    await fs.mkdir(FILES_DIR, { recursive: true });
+    const exists = await fs.access(filePath).then(() => true).catch(() => false);
+    if (exists) {
+      return res.status(409).json({ error: `Le fichier « ${filename} » existe déjà.` });
+    }
+    await fs.writeFile(filePath, '', 'utf-8');
+    const stat = await fs.stat(filePath);
+    const createdAt = (stat.birthtime && stat.birthtime.getTime() > 0 ? stat.birthtime : stat.ctime).toISOString();
+    const modifiedAt = stat.mtime.toISOString();
+    res.status(201).json({
+      path: relativePath,
+      name: filename,
+      createdAt,
+      modifiedAt,
+      size: 0,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/files/*', async (req, res) => {
   const relativePath = req.params[0];
   if (!relativePath || relativePath.includes('..')) {

@@ -147,6 +147,12 @@ body {
   gap: 0.5rem;
 }
 
+.sidebar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .sidebar-search {
   padding: 0 1rem 0.75rem;
 }

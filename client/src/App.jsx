@@ -430,6 +430,29 @@ export default function App() {
     fetchTrash();
   };
 
+  const handleCreateFile = async () => {
+    const raw = window.prompt('Nom du nouveau fichier :');
+    if (raw == null || !raw.trim()) return;
+    const name = raw.trim();
+    setUploadError(null);
+    try {
+      const r = await fetch(`${API}/files/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setUploadError(data.error || `Erreur ${r.status}`);
+        return;
+      }
+      fetchFiles();
+      setCurrentPath(data.path);
+    } catch (err) {
+      setUploadError(err.message || 'Erreur réseau.');
+    }
+  };
+
   const refreshContent = useCallback(() => {
     if (!currentPath) return;
     setLoading(true);
@@ -633,9 +656,14 @@ export default function App() {
         </a>
         <div className="sidebar-header">
           <h2>Fichiers</h2>
-          <button type="button" className="btn-refresh btn-refresh--icon" onClick={refreshAll} title="Actualiser la liste">
-            <ArrowPathIcon className="btn-refresh-icon" />
-          </button>
+          <div className="sidebar-header-actions">
+            <button type="button" className="btn-refresh" onClick={handleCreateFile} title="Nouveau fichier">
+              Nouveau
+            </button>
+            <button type="button" className="btn-refresh btn-refresh--icon" onClick={refreshAll} title="Actualiser la liste">
+              <ArrowPathIcon className="btn-refresh-icon" />
+            </button>
+          </div>
         </div>
         {uploadError && (
           <div className="sidebar-upload-error">{uploadError}</div>

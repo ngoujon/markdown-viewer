@@ -261,6 +261,14 @@ export default function App() {
     return `${n} octet${n !== 1 ? 's' : ''}`;
   };
 
+  const kpis = {
+    totalFiles: files.length,
+    totalSize: files.reduce((acc, f) => acc + (f.size || 0), 0),
+    mdCount: files.filter((f) => f.name?.toLowerCase().endsWith('.md')).length,
+    txtCount: files.filter((f) => f.name?.toLowerCase().endsWith('.txt')).length,
+    trashCount: trashFiles.length,
+  };
+
   return (
     <div className="app">
       <aside
@@ -269,6 +277,16 @@ export default function App() {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
+        <a
+          href="#"
+          className={`sidebar-nav-link ${!currentPath ? 'active' : ''}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setCurrentPath(null);
+          }}
+        >
+          Vue d'ensemble
+        </a>
         <div className="sidebar-header">
           <h2>Fichiers</h2>
           <button type="button" className="btn-refresh" onClick={refreshAll} title="Actualiser la liste">
@@ -378,7 +396,31 @@ export default function App() {
             </div>
           )}
           {!currentPath && !loading && (
-            <div className="empty">Sélectionnez un fichier dans la liste</div>
+            <div className="overview">
+              <h1 className="overview-title">Vue d'ensemble</h1>
+              <div className="kpi-grid">
+                <div className="kpi-card">
+                  <span className="kpi-value">{kpis.totalFiles}</span>
+                  <span className="kpi-label">Fichiers</span>
+                </div>
+                <div className="kpi-card">
+                  <span className="kpi-value">{formatSize(kpis.totalSize)}</span>
+                  <span className="kpi-label">Taille totale</span>
+                </div>
+                <div className="kpi-card">
+                  <span className="kpi-value">{kpis.mdCount}</span>
+                  <span className="kpi-label">Fichiers .md</span>
+                </div>
+                <div className="kpi-card">
+                  <span className="kpi-value">{kpis.txtCount}</span>
+                  <span className="kpi-label">Fichiers .txt</span>
+                </div>
+                <div className="kpi-card">
+                  <span className="kpi-value">{kpis.trashCount}</span>
+                  <span className="kpi-label">Dans la corbeille</span>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>

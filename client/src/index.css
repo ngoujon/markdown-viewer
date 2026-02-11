@@ -77,6 +77,29 @@ body {
   gap: 0.5rem;
 }
 
+.sidebar-nav-link {
+  display: block;
+  margin: 0.5rem 1rem 0.75rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 6px;
+  background: transparent;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-nav-link:hover {
+  background: rgba(122, 184, 212, 0.12);
+  color: var(--accent);
+}
+
+.sidebar-nav-link.active {
+  background: rgba(122, 184, 212, 0.18);
+  color: var(--accent);
+}
+
 .sidebar h2 {
   margin: 0;
   font-size: 0.85rem;
@@ -427,6 +450,47 @@ body {
 .markdown pre code {
   background: none;
   padding: 0;
+}
+
+/* Overview & KPIs */
+.overview {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.overview-title {
+  margin: 0 0 2rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.kpi-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.kpi-label {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 /* Empty / loading */

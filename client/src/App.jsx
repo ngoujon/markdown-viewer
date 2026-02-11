@@ -125,8 +125,13 @@ export default function App() {
 
   const handlePrint = () => {
     if (!currentPath) return;
-    setPdfLoading(true);
     setError(null);
+    const printWindow = window.open('', '_blank', 'noopener');
+    if (!printWindow) {
+      setError('Autorisez les pop-ups pour ouvrir l\'impression PDF.');
+      return;
+    }
+    setPdfLoading(true);
     fetch(`${API}/export-pdf?path=${encodeURIComponent(currentPath)}`)
       .then((r) => {
         if (!r.ok) throw new Error('Export impossible');
@@ -136,24 +141,19 @@ export default function App() {
         if (arrayBuffer.byteLength === 0) throw new Error('PDF vide');
         const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
-        const printWindow = window.open(url, '_blank', 'noopener');
-        if (printWindow) {
-          let printed = false;
-          const doPrint = () => {
-            if (printed) return;
-            printed = true;
-            printWindow.print();
-            printWindow.onafterprint = () => {
-              printWindow.close();
-              URL.revokeObjectURL(url);
-            };
+        let printed = false;
+        const doPrint = () => {
+          if (printed) return;
+          printed = true;
+          printWindow.print();
+          printWindow.onafterprint = () => {
+            printWindow.close();
+            URL.revokeObjectURL(url);
           };
-          printWindow.onload = doPrint;
-          setTimeout(doPrint, 1500);
-        } else {
-          URL.revokeObjectURL(url);
-          setError('Autorisez les pop-ups pour ouvrir l\'impression PDF.');
-        }
+        };
+        printWindow.location.href = url;
+        printWindow.onload = doPrint;
+        setTimeout(doPrint, 1500);
       })
       .catch((e) => setError(e.message))
       .finally(() => setPdfLoading(false));

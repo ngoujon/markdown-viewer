@@ -19,9 +19,12 @@ const HTML_START = `<!DOCTYPE html>
     .markdown td:first-child { text-align: justify; }
     .markdown th:not(:first-child), .markdown td:not(:first-child) { width: 1%; white-space: nowrap; text-align: right; }
     .markdown th { background: #f0f0f0; }
-    .markdown table:nth-of-type(2) { margin: 0.5rem 0; font-size: 0.85rem; }
-    .markdown table:nth-of-type(2) th, .markdown table:nth-of-type(2) td { padding: 0.15rem 0.4rem; }
-    .markdown table:nth-of-type(2) ~ p { text-align: left; margin: 0.25rem 0; font-size: 0.85rem; }
+    .markdown { display: grid; grid-template-columns: 1fr auto; grid-auto-flow: row; }
+    .markdown > * { grid-column: 1 / -1; }
+    .markdown > table:nth-of-type(2) { grid-column: 2; grid-row: span 2; align-self: start; width: max-content; margin: 0; font-size: 0.8rem; }
+    .markdown > table:nth-of-type(2) th, .markdown > table:nth-of-type(2) td { padding: 0.15rem 0.5rem; }
+    .markdown > table:nth-of-type(2) + p, .markdown > table:nth-of-type(2) + p + p { grid-column: 1; text-align: left; margin: 0.2rem 0; font-size: 0.85rem; }
+    .markdown > table:nth-of-type(2) + p + p + p { font-size: 0.75rem; color: #888; font-style: italic; margin-top: 0.5rem; }
     .markdown code { background: #f0f0f0; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
     .markdown pre { overflow-x: auto; padding: 1rem; background: #f5f5f5; border-radius: 6px; margin: 1rem 0; page-break-inside: avoid; }
     .markdown pre code { background: none; padding: 0; }

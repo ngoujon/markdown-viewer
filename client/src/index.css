@@ -1065,22 +1065,51 @@ body {
   background: rgba(122, 184, 212, 0.15);
 }
 
-/* Bloc totaux devis (Total HT, TVA, Total TTC) – compact */
-.markdown table:nth-of-type(2) {
-  margin: 0.5rem 0;
-  font-size: 0.85rem;
+/* Bloc devis footer : grille 2 colonnes – validation/condition à gauche, totaux à droite */
+.markdown {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-auto-flow: row;
 }
 
-.markdown table:nth-of-type(2) th,
-.markdown table:nth-of-type(2) td {
-  padding: 0.15rem 0.4rem;
+.markdown > * {
+  grid-column: 1 / -1;
 }
 
-/* Validation du devis et condition de règlement – à gauche */
-.markdown table:nth-of-type(2) ~ p {
+/* Totaux (2e table) : droite, largeur minimale, compact */
+.markdown > table:nth-of-type(2) {
+  grid-column: 2;
+  grid-row: span 2;
+  align-self: start;
+  width: max-content;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.markdown > table:nth-of-type(2) th,
+.markdown > table:nth-of-type(2) td {
+  padding: 0.15rem 0.5rem;
+}
+
+.markdown > table:nth-of-type(2) th {
+  background: rgba(122, 184, 212, 0.08);
+}
+
+/* Validation du devis et condition de règlement – gauche, au-dessus de la mention TVA */
+.markdown > table:nth-of-type(2) + p,
+.markdown > table:nth-of-type(2) + p + p {
+  grid-column: 1;
   text-align: left;
-  margin: 0.25rem 0;
+  margin: 0.2rem 0;
   font-size: 0.85rem;
+}
+
+/* Mention TVA – en dessous, pleine largeur, style discret */
+.markdown > table:nth-of-type(2) + p + p + p {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 0.5rem;
 }
 
 .markdown code {

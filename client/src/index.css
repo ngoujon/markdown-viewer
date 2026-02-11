@@ -1065,6 +1065,24 @@ body {
   background: rgba(122, 184, 212, 0.15);
 }
 
+/* Bloc totaux devis (Total HT, TVA, Total TTC) – compact */
+.markdown table:nth-of-type(2) {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+}
+
+.markdown table:nth-of-type(2) th,
+.markdown table:nth-of-type(2) td {
+  padding: 0.15rem 0.4rem;
+}
+
+/* Validation du devis et condition de règlement – à gauche */
+.markdown table:nth-of-type(2) ~ p {
+  text-align: left;
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
 .markdown code {
   font-family: var(--font-ui);
   background: rgba(0, 0, 0, 0.25);

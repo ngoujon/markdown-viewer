@@ -405,9 +405,9 @@ body {
   background: var(--bg);
 }
 
-/* Document page (screen) – format A4 */
+/* Document page (screen) – plus large que A4 pour une meilleure lisibilité */
 .page {
-  width: 210mm;
+  width: min(95%, 300mm);
   min-height: 297mm;
   margin: 0 auto 2rem;
   padding: 20mm 25mm;

@@ -1,6 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ArrowPathIcon, PrinterIcon } from '@heroicons/react/24/outline';
+
+function ArrowPathIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+    </svg>
+  );
+}
+
+function PrinterIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227 7.502 7.502 0 0 1-8.929-8.929 1.125 1.125 0 0 1 1.227-1.12L18 17.66M3 8.25c0-.621.504-1.125 1.125-1.125H4.5A2.25 2.25 0 0 1 6.75 5.25v1.5c0 .621.504 1.125 1.125 1.125h.375M3 8.25v8.25c0 .621.504 1.125 1.125 1.125h15.75c.621 0 1.125-.504 1.125-1.125V8.25M8.25 12h8.25" />
+    </svg>
+  );
+}
 
 const API = '/api';
 const MINIMAP_STORAGE_KEY = 'markdown-viewer-minimap';

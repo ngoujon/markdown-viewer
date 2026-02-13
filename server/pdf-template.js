@@ -9,22 +9,17 @@ const HTML_START = `<!DOCTYPE html>
     .markdown h1 { font-size: 1.75rem; font-weight: 600; margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ccc; page-break-after: avoid; page-break-before: always; }
     .markdown h1:first-child { page-break-before: auto; }
     .markdown h2 { font-size: 1.35rem; font-weight: 600; margin: 1.5rem 0 0.75rem; page-break-after: avoid; }
-    .markdown h3 { font-size: 0.95rem; font-weight: 600; margin: 0.5rem 0 0.25rem; page-break-after: avoid; }
-    .markdown p { margin: 0 0 1rem; text-align: justify; }
-    .markdown ul, .markdown ol { margin: 0 0 0.5rem; padding-left: 1.5rem; }
-    .markdown li { margin-bottom: 0.1rem; text-align: justify; }
-    .markdown table { width: 100%; border-collapse: collapse; margin: 1rem 0; page-break-inside: avoid; table-layout: auto; }
-    .markdown th, .markdown td { border: 1px solid #ccc; padding: 0.25rem 0.5rem; }
-    .markdown th:first-child, .markdown td:first-child { width: auto; }
-    .markdown td:first-child { text-align: justify; }
-    .markdown th:not(:first-child), .markdown td:not(:first-child) { width: 1%; white-space: nowrap; text-align: right; }
+    .markdown h3 { font-size: 1.15rem; font-weight: 600; margin: 1.25rem 0 0.5rem; page-break-after: avoid; }
+    .markdown p { margin: 0 0 1rem; }
+    .markdown ul, .markdown ol { margin: 0 0 1rem; padding-left: 1.5rem; }
+    .markdown table { width: 100%; border-collapse: collapse; margin: 1rem 0; page-break-inside: avoid; }
+    .markdown table:has(td:nth-child(2):last-child) { table-layout: fixed; }
+    .markdown table:has(td:nth-child(2):last-child) td:first-child,
+    .markdown table:has(td:nth-child(2):last-child) th:first-child,
+    .markdown table:has(td:nth-child(2):last-child) td:last-child,
+    .markdown table:has(td:nth-child(2):last-child) th:last-child { width: 50%; }
+    .markdown th, .markdown td { border: 1px solid #ccc; padding: 0.5rem 0.75rem; text-align: left; }
     .markdown th { background: #f0f0f0; }
-    .markdown { display: grid; grid-template-columns: 1fr auto; grid-auto-flow: row; }
-    .markdown > * { grid-column: 1 / -1; }
-    .markdown > table:nth-of-type(2) { grid-column: 2; grid-row: span 2; align-self: start; width: max-content; margin: 0; font-size: 0.8rem; }
-    .markdown > table:nth-of-type(2) th, .markdown > table:nth-of-type(2) td { padding: 0.15rem 0.5rem; }
-    .markdown > table:nth-of-type(2) + p, .markdown > table:nth-of-type(2) + p + p { grid-column: 1; text-align: left; margin: 0.2rem 0; font-size: 0.85rem; }
-    .markdown > table:nth-of-type(2) + p + p + p { font-size: 0.75rem; color: #888; font-style: italic; margin-top: 0.5rem; }
     .markdown code { background: #f0f0f0; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
     .markdown pre { overflow-x: auto; padding: 1rem; background: #f5f5f5; border-radius: 6px; margin: 1rem 0; page-break-inside: avoid; }
     .markdown pre code { background: none; padding: 0; }

@@ -909,7 +909,7 @@ body {
 .minimap .minimap-page {
   width: 100%;
   min-height: auto !important;
-  padding: 20mm 15mm;
+  padding: 20mm 25mm;
   background: var(--surface);
   box-shadow: none;
   margin: 0;
@@ -989,7 +989,7 @@ body {
   width: min(95%, 300mm);
   min-height: 297mm;
   margin: 0 auto 2rem;
-  padding: 20mm 15mm;
+  padding: 20mm 25mm;
   background: var(--surface);
   border-radius: 4px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
@@ -1015,101 +1015,45 @@ body {
 }
 
 .markdown h3 {
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   font-weight: 600;
-  margin: 0.5rem 0 0.25rem;
+  margin: 1.25rem 0 0.5rem;
 }
 
 .markdown p {
   margin: 0 0 1rem;
-  text-align: justify;
 }
 
 .markdown ul, .markdown ol {
-  margin: 0 0 0.5rem;
+  margin: 0 0 1rem;
   padding-left: 1.5rem;
-}
-
-.markdown li {
-  margin-bottom: 0.1rem;
-  text-align: justify;
 }
 
 .markdown table {
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
-  table-layout: auto;
+}
+
+/* Tableaux à 2 colonnes : répartition 50/50 pour les champs à remplir */
+.markdown table:has(td:nth-child(2):last-child) {
+  table-layout: fixed;
+}
+.markdown table:has(td:nth-child(2):last-child) td:first-child,
+.markdown table:has(td:nth-child(2):last-child) th:first-child,
+.markdown table:has(td:nth-child(2):last-child) td:last-child,
+.markdown table:has(td:nth-child(2):last-child) th:last-child {
+  width: 50%;
 }
 
 .markdown th, .markdown td {
   border: 1px solid var(--muted);
-  padding: 0.25rem 0.5rem;
-}
-
-.markdown th:first-child, .markdown td:first-child {
-  width: auto;
-}
-
-.markdown td:first-child {
-  text-align: justify;
-}
-
-.markdown th:not(:first-child), .markdown td:not(:first-child) {
-  width: 1%;
-  white-space: nowrap;
-  text-align: right;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
 }
 
 .markdown th {
   background: rgba(122, 184, 212, 0.15);
-}
-
-/* Bloc devis footer : grille 2 colonnes – validation/condition à gauche, totaux à droite */
-.markdown {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-auto-flow: row;
-}
-
-.markdown > * {
-  grid-column: 1 / -1;
-}
-
-/* Totaux (2e table) : droite, largeur minimale, compact */
-.markdown > table:nth-of-type(2) {
-  grid-column: 2;
-  grid-row: span 2;
-  align-self: start;
-  width: max-content;
-  margin: 0;
-  font-size: 0.8rem;
-}
-
-.markdown > table:nth-of-type(2) th,
-.markdown > table:nth-of-type(2) td {
-  padding: 0.15rem 0.5rem;
-}
-
-.markdown > table:nth-of-type(2) th {
-  background: rgba(122, 184, 212, 0.08);
-}
-
-/* Validation du devis et condition de règlement – gauche, au-dessus de la mention TVA */
-.markdown > table:nth-of-type(2) + p,
-.markdown > table:nth-of-type(2) + p + p {
-  grid-column: 1;
-  text-align: left;
-  margin: 0.2rem 0;
-  font-size: 0.85rem;
-}
-
-/* Mention TVA – en dessous, pleine largeur, style discret */
-.markdown > table:nth-of-type(2) + p + p + p {
-  font-size: 0.75rem;
-  color: var(--muted);
-  font-style: italic;
-  margin-top: 0.5rem;
 }
 
 .markdown code {
@@ -1443,7 +1387,7 @@ body {
 
   .page {
     width: min(98%, 100%);
-    padding: 12mm 10mm;
+    padding: 12mm 15mm;
     min-height: 200mm;
   }
 
@@ -1546,7 +1490,7 @@ body {
 /* ========== PRINT STYLES ========== */
 @page {
   size: A4;
-  margin: 12mm 10mm;
+  margin: 12mm 15mm;
 }
 
 @media print {

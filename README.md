@@ -43,7 +43,7 @@ docker compose up --build
 # ou : npm run docker:up
 ```
 
-3. Ouvrir **http://localhost:3000**. Toute modification dans `client/` ou `server/` est reflétée instantanément.
+3. Ouvrir **http://localhost:3001**. Toute modification dans `client/` ou `server/` est reflétée instantanément.
 4. Choisir un fichier dans la liste, puis utiliser le bouton **« Imprimer »** pour générer un PDF et l’ouvrir (impression ou enregistrement en PDF). Dans la fenêtre d’impression du navigateur, décocher « En-têtes et pieds de page » pour éviter URL, date et numéros de page.
 
 **Mode production** (build statique, pour déploiement) : `docker compose -f docker-compose.prod.yml up --build`
@@ -59,11 +59,11 @@ npm install && cd client && npm install && cd ../server && npm install && cd ..
 npm run dev
 ```
 
-Le client tourne sur **http://localhost:3000** et le serveur sur **http://localhost:3001** (proxy Vite). Les modifications sont visibles immédiatement grâce au hot reload.
+Le client tourne sur **http://localhost:3001** et le serveur sur **http://localhost:3002** (proxy Vite). Les modifications sont visibles immédiatement grâce au hot reload.
 
-3. Ouvrir **http://localhost:3000**. Les fichiers sont lus depuis le dossier `files` à la racine.
+3. Ouvrir **http://localhost:3001**. Les fichiers sont lus depuis le dossier `files` à la racine.
 
-**Note** : Si Docker tourne déjà sur le port 3000, arrêtez-le (`docker compose down`) avant de lancer `npm run dev` pour éviter un conflit de port.
+**Note** : Si Docker tourne déjà sur le port 3001, arrêtez-le (`docker compose down`) avant de lancer `npm run dev` pour éviter un conflit de port.
 
 Production locale (même version que Docker) : `npm run start` (build puis serveur sur **http://localhost:3001**).
 
@@ -73,7 +73,7 @@ Production locale (même version que Docker) : `npm run start` (build puis serve
 
 | Variable | Description | Défaut |
 |----------|-------------|--------|
-| `PORT` | Port du serveur | `3001` (local) / `3000` (Docker) |
+| `PORT` | Port du serveur | `3002` (dev) / `3001` (prod local) / `3000` (Docker) |
 | `FILES_DIR` | Dossier des fichiers Markdown | `../files` (relatif au serveur) ou `/app/files` (Docker) |
 | `STATIC_DIR` | Dossier du client buildé (production) | `../client/dist` ou `/app/client/dist` |
 | `PUPPETEER_EXECUTABLE_PATH` | Chemin vers Chromium/Chrome (export PDF) | non défini (Puppeteer utilise son binaire) |

@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - "3001:3001"
     volumes:
       - ./client:/app/client
       - /app/client/node_modules
@@ -13,5 +13,5 @@ services:
       - ./files:/app/files
     environment:
       - NODE_ENV=development
-      - PORT=3001
+      - PORT=3002
       - FILES_DIR=/app/files

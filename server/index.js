@@ -350,7 +350,7 @@ app.get('/api/export-pdf', async (req, res) => {
       format: 'A4',
       printBackground: true,
       displayHeaderFooter: false,
-      margin: { top: '15mm', right: '10mm', bottom: '15mm', left: '10mm' },
+      margin: { top: '15mm', right: '15mm', bottom: '15mm', left: '15mm' },
     });
 
     await browser.close();

@@ -491,6 +491,17 @@ body {
   border-bottom: none;
 }
 
+/* 3 documents : supprimer les marges/padding du viewer pour maximiser l'espace */
+.viewer-content--split-3 .viewer {
+  padding: 0;
+}
+
+.viewer-content--split-3 .page {
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+}
+
 /* Panneau document */
 .document-pane {
   flex: 1;

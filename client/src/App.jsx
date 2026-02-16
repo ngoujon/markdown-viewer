@@ -1302,7 +1302,7 @@ export default function App() {
         </button>
       )}
       <div className={`viewer-wrap ${sidebarHidden ? 'viewer-wrap--sidebar-hidden' : ''}`}>
-        <div className={`viewer-content ${openTabs.length >= 2 ? `viewer-content--split viewer-content--split-${splitMode}` : ''}`}>
+        <div className={`viewer-content ${openTabs.length >= 2 ? `viewer-content--split viewer-content--split-${splitMode}${openTabs.length === 3 ? ' viewer-content--split-3' : ''}` : ''}`}>
           {openTabs.length === 0 && (
             <div className="viewer-container">
               <div className="viewer">

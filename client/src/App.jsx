@@ -92,6 +92,14 @@ function ArrowsPointingInIcon({ className }) {
   );
 }
 
+function ArrowPathRoundedIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+    </svg>
+  );
+}
+
 const API = '/api';
 const MINIMAP_STORAGE_KEY = 'markdown-viewer-minimap';
 const SPLIT_MODE_STORAGE_KEY = 'markdown-viewer-split-mode';
@@ -433,7 +441,7 @@ function useHighlightInDocument(containerRef, content, searchQuery) {
   }, [content, searchQuery]);
 }
 
-function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdfLoading, printError, onClose }) {
+function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdfLoading, printError, onClose, onScrollPosition, scrollPositionToRestore }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -482,6 +490,22 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdf
       })
       .finally(() => setLoading(false));
   }, [path]);
+
+  useEffect(() => {
+    if (!onScrollPosition || !path) return;
+    const viewer = viewerRef?.current;
+    if (!viewer) return;
+    const handler = () => onScrollPosition(path, viewer.scrollTop);
+    viewer.addEventListener('scroll', handler);
+    return () => viewer.removeEventListener('scroll', handler);
+  }, [path, onScrollPosition]);
+
+  useEffect(() => {
+    if (scrollPositionToRestore == null || loading || error) return;
+    const viewer = viewerRef?.current;
+    if (!viewer) return;
+    viewer.scrollTop = scrollPositionToRestore;
+  }, [content, loading, error, scrollPositionToRestore]);
 
   useEffect(() => {
     const q = docSearchQuery.trim();
@@ -751,6 +775,16 @@ export default function App() {
   const [searchDebouncing, setSearchDebouncing] = useState(false);
   const [filesError, setFilesError] = useState(null);
   const searchTimeoutRef = useRef(null);
+  const scrollPositionsRef = useRef({});
+
+  const handleScrollPosition = useCallback((path, scrollTop) => {
+    scrollPositionsRef.current[path] = scrollTop;
+  }, []);
+
+  const swapPanes = useCallback(() => {
+    if (openTabs.length < 2) return;
+    setOpenTabs((prev) => [prev[1], prev[0], ...prev.slice(2)]);
+  }, [openTabs.length]);
 
   const openTab = useCallback((path, preferRight = true) => {
     setOpenTabs((prev) => {
@@ -1208,6 +1242,11 @@ export default function App() {
             <button type="button" className="btn-refresh btn-refresh--icon" onClick={refreshAll} title="Actualiser la liste">
               <ArrowPathIcon className="btn-refresh-icon" />
             </button>
+            {openTabs.length >= 2 && (
+              <button type="button" className="btn-refresh btn-refresh--icon" onClick={swapPanes} title="Permuter gauche et droite" aria-label="Permuter l'affichage gauche et droite">
+                <ArrowPathRoundedIcon className="btn-refresh-icon" />
+              </button>
+            )}
             <button type="button" className="btn-refresh btn-refresh--icon" onClick={() => setSidebarHidden(true)} title="Masquer la barre latérale" aria-label="Masquer la barre latérale">
               <ChevronLeftIcon className="btn-refresh-icon" />
             </button>
@@ -1357,6 +1396,8 @@ export default function App() {
               pdfLoading={pdfLoading}
               printError={printError}
               onClose={() => closeTab(0)}
+              onScrollPosition={handleScrollPosition}
+              scrollPositionToRestore={scrollPositionsRef.current[openTabs[0]]}
             />
           )}
           {openTabs.length >= 2 && (
@@ -1371,6 +1412,8 @@ export default function App() {
                   pdfLoading={pdfLoading}
                   printError={printError}
                   onClose={() => closeTab(0)}
+                  onScrollPosition={handleScrollPosition}
+                  scrollPositionToRestore={scrollPositionsRef.current[openTabs[0]]}
                 />
               </div>
               <div className="document-pane-wrapper">
@@ -1383,6 +1426,8 @@ export default function App() {
                   pdfLoading={pdfLoading}
                   printError={printError}
                   onClose={() => closeTab(1)}
+                  onScrollPosition={handleScrollPosition}
+                  scrollPositionToRestore={scrollPositionsRef.current[openTabs[1]]}
                 />
               </div>
               {openTabs.length >= 3 && (
@@ -1396,6 +1441,8 @@ export default function App() {
                     pdfLoading={pdfLoading}
                     printError={printError}
                     onClose={() => closeTab(2)}
+                    onScrollPosition={handleScrollPosition}
+                    scrollPositionToRestore={scrollPositionsRef.current[openTabs[2]]}
                   />
                 </div>
               )}

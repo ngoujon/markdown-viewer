@@ -1229,8 +1229,6 @@ export default function App() {
           {(!searchQuery.trim() || (!searchLoading && !searchDebouncing)) && displayFiles.map((f) => {
             const tabIndex = openTabs.indexOf(f.path);
             const isOpen = tabIndex >= 0;
-            const isRight = openTabs.length >= 2 && tabIndex === rightTabIndex;
-            const isLeft = openTabs.length >= 2 && tabIndex === leftTabIndex;
             return (
               <li key={f.path} className="file-list-item">
                 <a
@@ -1238,19 +1236,14 @@ export default function App() {
                   className={isOpen ? 'active' : ''}
                   onClick={(e) => {
                     e.preventDefault();
-                    if (isOpen && openTabs.length >= 2) {
-                      if (isRight) {
-                        collapseToSingleTab();
-                      } else if (isLeft) {
-                        setLeftTabIndex(rightTabIndex);
-                        setRightTabIndex(leftTabIndex);
-                      }
+                    if (isOpen) {
+                      closeTab(tabIndex);
                     } else {
                       openTab(f.path, !e.ctrlKey && !e.metaKey);
                     }
                   }}
-                  title={openTabs.length >= 2 && isOpen
-                    ? (isRight ? "Cliquer pour afficher un seul panneau" : "Cliquer pour inverser les panneaux")
+                  title={isOpen
+                    ? "Cliquer pour fermer l'onglet"
                     : "Cliquer pour ouvrir · Ctrl+clic pour ouvrir côte à côte"}
                 >
                   {f.name}

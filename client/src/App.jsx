@@ -1211,39 +1211,71 @@ export default function App() {
               Aucun document ne contient « {searchQuery.trim()} ».
             </li>
           )}
-          {(!searchQuery.trim() || (!searchLoading && !searchDebouncing)) && displayFiles.map((f) => (
-            <li key={f.path} className="file-list-item">
-              <a
-                href="#"
-                className={openTabs.includes(f.path) ? 'active' : ''}
-                onClick={(e) => {
-                  e.preventDefault();
-                  openTab(f.path, !e.ctrlKey && !e.metaKey);
-                }}
-                title="Cliquer pour ouvrir · Ctrl+clic pour ouvrir côte à côte · Cliquer à nouveau sur un fichier ouvert pour afficher un seul onglet"
-              >
-                {f.name}
-              </a>
-              <button
-                type="button"
-                className="file-list-action file-list-rename"
-                title="Renommer ce fichier"
-                onClick={(e) => handleRenameClick(f.path, f.name, e)}
-                aria-label={`Renommer ${f.name}`}
-              >
-                <PencilIcon className="file-list-action-icon" />
-              </button>
-              <button
-                type="button"
-                className="file-list-action file-list-delete"
-                title="Supprimer ce fichier"
-                onClick={(e) => handleDeleteClick(f.path, e)}
-                aria-label={`Supprimer ${f.name}`}
-              >
-                ×
-              </button>
-            </li>
-          ))}
+          {(!searchQuery.trim() || (!searchLoading && !searchDebouncing)) && displayFiles.map((f) => {
+            const tabIndex = openTabs.indexOf(f.path);
+            const isOpen = tabIndex >= 0;
+            const isRight = openTabs.length >= 2 && tabIndex === rightTabIndex;
+            const isLeft = openTabs.length >= 2 && tabIndex === leftTabIndex;
+            return (
+              <li key={f.path} className="file-list-item">
+                <a
+                  href="#"
+                  className={isOpen ? 'active' : ''}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (isOpen && openTabs.length >= 2) {
+                      if (isRight) {
+                        collapseToSingleTab();
+                      } else if (isLeft) {
+                        setLeftTabIndex(rightTabIndex);
+                        setRightTabIndex(leftTabIndex);
+                      }
+                    } else {
+                      openTab(f.path, !e.ctrlKey && !e.metaKey);
+                    }
+                  }}
+                  title={openTabs.length >= 2 && isOpen
+                    ? (isRight ? "Cliquer pour afficher un seul panneau" : "Cliquer pour inverser les panneaux")
+                    : "Cliquer pour ouvrir · Ctrl+clic pour ouvrir côte à côte"}
+                >
+                  {f.name}
+                </a>
+                {isOpen && (
+                  <button
+                    type="button"
+                    className="file-list-action file-list-close-tab"
+                    title="Fermer l'onglet"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      closeTab(tabIndex);
+                    }}
+                    aria-label={`Fermer ${f.name}`}
+                  >
+                    <XMarkIcon className="file-list-action-icon" />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="file-list-action file-list-rename"
+                  title="Renommer ce fichier"
+                  onClick={(e) => handleRenameClick(f.path, f.name, e)}
+                  aria-label={`Renommer ${f.name}`}
+                >
+                  <PencilIcon className="file-list-action-icon" />
+                </button>
+                <button
+                  type="button"
+                  className="file-list-action file-list-delete"
+                  title="Supprimer ce fichier"
+                  onClick={(e) => handleDeleteClick(f.path, e)}
+                  aria-label={`Supprimer ${f.name}`}
+                >
+                  ×
+                </button>
+              </li>
+            );
+          })}
         </ul>
         <button
           type="button"
@@ -1266,55 +1298,6 @@ export default function App() {
         </button>
       )}
       <div className={`viewer-wrap ${sidebarHidden ? 'viewer-wrap--sidebar-hidden' : ''}`}>
-        {openTabs.length > 0 && (
-          <div className="tabs-bar">
-            {openTabs.length >= 2 && (
-              <button
-                type="button"
-                className="tabs-bar-collapse-btn"
-                onClick={collapseToSingleTab}
-                title="Garder uniquement l'onglet actif (un seul panneau)"
-                aria-label="Réduire à un seul onglet"
-              >
-                <ArrowsPointingInIcon className="tabs-bar-collapse-icon" />
-              </button>
-            )}
-            {openTabs.map((path, index) => {
-              const file = files.find((f) => f.path === path);
-              const name = file?.name ?? path.split('/').pop() ?? path;
-              const isLeft = index === leftTabIndex;
-              const isRight = index === rightTabIndex && openTabs.length >= 2;
-              const isActive = isLeft || isRight;
-              return (
-                <div
-                  key={path}
-                  className={`tab-item ${isActive ? 'active' : ''} ${isLeft ? 'tab-left' : ''} ${isRight ? 'tab-right' : ''}`}
-                  onClick={() => {
-                    if (openTabs.length >= 2) {
-                      setRightTabIndex(index);
-                    } else {
-                      setLeftTabIndex(index);
-                    }
-                  }}
-                >
-                  <span className="tab-label">{name}</span>
-                  <button
-                    type="button"
-                    className="tab-close"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      closeTab(index);
-                    }}
-                    title="Fermer l'onglet"
-                    aria-label={`Fermer ${name}`}
-                  >
-                    <XMarkIcon className="tab-close-icon" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
         <div className={`viewer-content ${openTabs.length >= 2 ? `viewer-content--split viewer-content--split-${splitMode}` : ''}`}>
           {openTabs.length === 0 && (
             <div className="viewer-container">
@@ -1388,6 +1371,15 @@ export default function App() {
         <footer className="status-bar">
           {openTabs.length >= 2 && (
             <div className="status-bar-split-group">
+              <button
+                type="button"
+                className="status-bar-btn status-bar-btn-icon"
+                onClick={collapseToSingleTab}
+                title="Garder uniquement le panneau droit (un seul document)"
+                aria-label="Réduire à un seul panneau"
+              >
+                <ArrowsPointingInIcon className="status-bar-icon" />
+              </button>
               <button
                 type="button"
                 className={`status-bar-btn status-bar-btn-icon ${splitMode === 'vertical' ? 'active' : ''}`}

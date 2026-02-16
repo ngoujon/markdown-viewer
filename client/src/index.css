@@ -334,6 +334,11 @@ body {
   background: rgba(247, 118, 142, 0.12);
 }
 
+.file-list-close-tab:hover {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .file-list a {
   display: block;
   padding: 0.5rem 1rem;
@@ -440,96 +445,6 @@ body {
   height: 100vh;
   overflow: hidden;
   transition: margin-left 0.2s ease;
-}
-
-/* Barre d'onglets */
-.tabs-bar {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.4rem 1rem;
-  background: var(--surface-alt);
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-}
-
-.tabs-bar-collapse-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.35rem;
-  margin-right: 0.25rem;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.tabs-bar-collapse-btn:hover {
-  background: rgba(122, 184, 212, 0.12);
-  color: var(--accent);
-}
-
-.tabs-bar-collapse-icon {
-  width: 1.1rem;
-  height: 1.1rem;
-}
-
-.tab-item {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.6rem;
-  border-radius: 6px;
-  cursor: pointer;
-  background: transparent;
-  border: 1px solid transparent;
-  transition: background 0.15s, border-color 0.15s;
-  flex-shrink: 0;
-}
-
-.tab-item:hover {
-  background: rgba(122, 184, 212, 0.12);
-}
-
-.tab-item.active {
-  background: rgba(122, 184, 212, 0.18);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.tab-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tab-close {
-  padding: 0.15rem;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tab-close:hover {
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.tab-close-icon {
-  width: 1rem;
-  height: 1rem;
 }
 
 /* Contenu principal avec split */
@@ -1306,10 +1221,6 @@ body {
     font-size: 0.8rem;
   }
 
-  .tab-label {
-    max-width: 120px;
-  }
-
   .minimap {
     width: 80px;
   }
@@ -1337,20 +1248,6 @@ body {
 
   .viewer-wrap--sidebar-hidden .viewer-wrap {
     margin-left: 0;
-  }
-
-  .tabs-bar {
-    padding: 0.35rem 0.75rem;
-    gap: 0.2rem;
-  }
-
-  .tab-item {
-    padding: 0.3rem 0.5rem;
-  }
-
-  .tab-label {
-    max-width: 80px;
-    font-size: 0.85rem;
   }
 
   .doc-header {
@@ -1458,10 +1355,6 @@ body {
 
   .sidebar-header-actions {
     flex-wrap: wrap;
-  }
-
-  .tab-label {
-    max-width: 60px;
   }
 
   .doc-header-btn-icon {

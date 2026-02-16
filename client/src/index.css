@@ -520,7 +520,7 @@ body {
 
 .sidebar-toggle-floating {
   position: fixed;
-  top: 1rem;
+  top: 2.5rem;
   left: 0;
   z-index: 99;
   padding: 0.5rem 0.6rem;

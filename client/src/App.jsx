@@ -596,8 +596,8 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdf
             <span className="doc-header-print-error">{printError}</span>
           )}
         </div>
-        <div className="doc-header-title-wrap">
-          <span className="doc-header-name">{currentFile?.name ?? path}</span>
+        <span className="doc-header-name">{currentFile?.name ?? path}</span>
+        <div className="doc-header-right">
           {onClose && (
             <button
               type="button"
@@ -609,8 +609,7 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdf
               <XMarkIcon className="doc-header-close-icon" />
             </button>
           )}
-        </div>
-        <span className="doc-header-meta">
+          <span className="doc-header-meta">
           <span className="doc-header-label">Taille</span>{' '}
           <span className="doc-header-value">{formatSize(currentFile?.size)}</span>
           <span className="doc-header-sep"> · </span>
@@ -619,7 +618,8 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdf
           <span className="doc-header-sep"> · </span>
           <span className="doc-header-label">Modifié le</span>{' '}
           <span className="doc-header-value">{formatDate(currentFile?.modifiedAt)}</span>
-        </span>
+          </span>
+        </div>
       </header>
       {!loading && !error && (
         <div className="doc-search-bar">

@@ -1389,7 +1389,6 @@ export default function App() {
           return (
             <footer className={`split-footer split-footer--${splitMode}`} role="contentinfo">
               <div className="split-footer-pane">
-                <span className="split-footer-name">{leftFile?.name ?? openTabs[leftTabIndex]?.split('/').pop() ?? ''}</span>
                 <span className="split-footer-meta">
                   Taille {formatSize(leftFile?.size)}
                   {' · '}
@@ -1399,7 +1398,6 @@ export default function App() {
                 </span>
               </div>
               <div className="split-footer-pane">
-                <span className="split-footer-name">{rightFile?.name ?? openTabs[rightTabIndex]?.split('/').pop() ?? ''}</span>
                 <span className="split-footer-meta">
                   Taille {formatSize(rightFile?.size)}
                   {' · '}

@@ -650,6 +650,37 @@ body {
   color: var(--border);
 }
 
+/* Mode scindé : header plus lisible (éviter que titre et métadonnées s'écrasent) */
+.viewer-content--split .doc-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.viewer-content--split .doc-header-name {
+  position: static;
+  transform: none;
+  order: 1;
+  text-align: left;
+  max-width: 100%;
+  font-size: 0.95rem;
+}
+
+.viewer-content--split .doc-header-left {
+  order: 2;
+  min-width: 0;
+  justify-content: flex-start;
+}
+
+.viewer-content--split .doc-header-meta {
+  order: 3;
+  min-width: 0;
+  text-align: left;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
 .doc-search-bar {
   flex-shrink: 0;
   display: flex;
@@ -658,6 +689,10 @@ body {
   padding: 0.5rem 1.5rem;
   background: var(--surface-alt);
   border-bottom: 1px solid var(--border);
+}
+
+.viewer-content--split .doc-search-bar {
+  padding: 0.4rem 1rem;
 }
 
 .doc-search-input {

@@ -433,7 +433,7 @@ function useHighlightInDocument(containerRef, content, searchQuery) {
   }, [content, searchQuery]);
 }
 
-function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdfLoading, printError }) {
+function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdfLoading, printError, onClose }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -596,7 +596,20 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdf
             <span className="doc-header-print-error">{printError}</span>
           )}
         </div>
-        <span className="doc-header-name">{currentFile?.name ?? path}</span>
+        <div className="doc-header-title-wrap">
+          <span className="doc-header-name">{currentFile?.name ?? path}</span>
+          {onClose && (
+            <button
+              type="button"
+              className="doc-header-close"
+              onClick={onClose}
+              title="Fermer"
+              aria-label={`Fermer ${currentFile?.name ?? path}`}
+            >
+              <XMarkIcon className="doc-header-close-icon" />
+            </button>
+          )}
+        </div>
         <span className="doc-header-meta">
           <span className="doc-header-label">Taille</span>{' '}
           <span className="doc-header-value">{formatSize(currentFile?.size)}</span>
@@ -1343,6 +1356,7 @@ export default function App() {
               onDownloadPdf={handleDownloadPdf}
               pdfLoading={pdfLoading}
               printError={printError}
+              onClose={() => closeTab(0)}
             />
           )}
           {openTabs.length >= 2 && (
@@ -1356,6 +1370,7 @@ export default function App() {
                   onDownloadPdf={handleDownloadPdf}
                   pdfLoading={pdfLoading}
                   printError={printError}
+                  onClose={() => closeTab(0)}
                 />
               </div>
               <div className="document-pane-wrapper">
@@ -1367,6 +1382,7 @@ export default function App() {
                   onDownloadPdf={handleDownloadPdf}
                   pdfLoading={pdfLoading}
                   printError={printError}
+                  onClose={() => closeTab(1)}
                 />
               </div>
               {openTabs.length >= 3 && (
@@ -1379,6 +1395,7 @@ export default function App() {
                     onDownloadPdf={handleDownloadPdf}
                     pdfLoading={pdfLoading}
                     printError={printError}
+                    onClose={() => closeTab(2)}
                   />
                 </div>
               )}

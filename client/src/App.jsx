@@ -743,14 +743,10 @@ export default function App() {
     setOpenTabs((prev) => {
       const idx = prev.indexOf(path);
       if (idx >= 0) {
-        // Fichier déjà ouvert : si on a 2+ onglets, garder uniquement celui-ci (retour à 1 onglet)
-        if (prev.length >= 2) {
-          setLeftTabIndex(0);
-          setRightTabIndex(0);
-          return [path];
-        }
+        // Fichier déjà ouvert : recliquer ferme l'onglet (géré par le clic)
         return prev;
       }
+      if (prev.length >= 3) return prev; // Max 3 fichiers ouverts
       const next = [...prev, path];
       if (next.length === 1) {
         setLeftTabIndex(0);
@@ -875,10 +871,8 @@ export default function App() {
       }
       setOpenTabs((prev) => {
         const next = prev.filter((p) => p !== filePath);
-        if (next.length < 2) {
-          setLeftTabIndex(0);
-          setRightTabIndex(Math.min(1, next.length - 1));
-        }
+        setLeftTabIndex(0);
+        setRightTabIndex(Math.max(0, Math.min(1, next.length - 1)));
         return next;
       });
       setUploadError(null);
@@ -1238,13 +1232,15 @@ export default function App() {
                     e.preventDefault();
                     if (isOpen) {
                       closeTab(tabIndex);
-                    } else {
+                    } else if (openTabs.length < 3) {
                       openTab(f.path, !e.ctrlKey && !e.metaKey);
                     }
                   }}
                   title={isOpen
                     ? "Cliquer pour fermer l'onglet"
-                    : "Cliquer pour ouvrir · Ctrl+clic pour ouvrir côte à côte"}
+                    : openTabs.length >= 3
+                      ? "3 fichiers ouverts · Fermez-en un pour en ouvrir un autre"
+                      : "Cliquer pour ouvrir · Ctrl+clic pour ouvrir côte à côte"}
                 >
                   {f.name}
                 </a>
@@ -1353,7 +1349,7 @@ export default function App() {
             <>
               <div className="document-pane-wrapper">
                 <DocumentPane
-                  path={openTabs[leftTabIndex]}
+                  path={openTabs[0]}
                   files={files}
                   minimapEnabled={minimapEnabled}
                   onPrint={handlePrint}
@@ -1364,7 +1360,7 @@ export default function App() {
               </div>
               <div className="document-pane-wrapper">
                 <DocumentPane
-                  path={openTabs[rightTabIndex]}
+                  path={openTabs[1]}
                   files={files}
                   minimapEnabled={minimapEnabled}
                   onPrint={handlePrint}
@@ -1373,32 +1369,37 @@ export default function App() {
                   printError={printError}
                 />
               </div>
+              {openTabs.length >= 3 && (
+                <div className="document-pane-wrapper">
+                  <DocumentPane
+                    path={openTabs[2]}
+                    files={files}
+                    minimapEnabled={minimapEnabled}
+                    onPrint={handlePrint}
+                    onDownloadPdf={handleDownloadPdf}
+                    pdfLoading={pdfLoading}
+                    printError={printError}
+                  />
+                </div>
+              )}
             </>
           )}
         </div>
         {openTabs.length >= 2 && (() => {
-          const leftFile = files.find((f) => f.path === openTabs[leftTabIndex]);
-          const rightFile = files.find((f) => f.path === openTabs[rightTabIndex]);
+          const panes = openTabs.slice(0, 3).map((path) => files.find((f) => f.path === path));
           return (
             <footer className={`split-footer split-footer--${splitMode}`} role="contentinfo">
-              <div className="split-footer-pane">
-                <span className="split-footer-meta">
-                  Taille {formatSize(leftFile?.size)}
-                  {' · '}
-                  Créé le {formatDate(leftFile?.createdAt)}
-                  {' · '}
-                  Modifié le {formatDate(leftFile?.modifiedAt)}
-                </span>
-              </div>
-              <div className="split-footer-pane">
-                <span className="split-footer-meta">
-                  Taille {formatSize(rightFile?.size)}
-                  {' · '}
-                  Créé le {formatDate(rightFile?.createdAt)}
-                  {' · '}
-                  Modifié le {formatDate(rightFile?.modifiedAt)}
-                </span>
-              </div>
+              {panes.map((file, i) => (
+                <div key={openTabs[i]} className="split-footer-pane">
+                  <span className="split-footer-meta">
+                    Taille {formatSize(file?.size)}
+                    {' · '}
+                    Créé le {formatDate(file?.createdAt)}
+                    {' · '}
+                    Modifié le {formatDate(file?.modifiedAt)}
+                  </span>
+                </div>
+              ))}
             </footer>
           );
         })()}

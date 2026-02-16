@@ -650,35 +650,9 @@ body {
   color: var(--border);
 }
 
-/* Mode scindé : header plus lisible (éviter que titre et métadonnées s'écrasent) */
-.viewer-content--split .doc-header {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-}
-
-.viewer-content--split .doc-header-name {
-  position: static;
-  transform: none;
-  order: 1;
-  text-align: left;
-  max-width: 100%;
-  font-size: 0.95rem;
-}
-
-.viewer-content--split .doc-header-left {
-  order: 2;
-  min-width: 0;
-  justify-content: flex-start;
-}
-
+/* Mode scindé : masquer les métadonnées du header (affichées dans le footer scindé) */
 .viewer-content--split .doc-header-meta {
-  order: 3;
-  min-width: 0;
-  text-align: left;
-  font-size: 0.8rem;
-  line-height: 1.5;
+  display: none;
 }
 
 .doc-search-bar {
@@ -691,9 +665,6 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-.viewer-content--split .doc-search-bar {
-  padding: 0.4rem 1rem;
-}
 
 .doc-search-input {
   flex: 1;
@@ -880,6 +851,60 @@ body {
 }
 
 /* Barre de statut en bas */
+/* Footer scindé : métadonnées par fichier ouvert */
+.split-footer {
+  flex-shrink: 0;
+  display: flex;
+  padding: 0.5rem 1rem;
+  background: var(--surface-alt);
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.split-footer--vertical {
+  flex-direction: row;
+  gap: 0;
+}
+
+.split-footer--vertical .split-footer-pane {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0 1rem;
+  border-right: 1px solid var(--border);
+}
+
+.split-footer--vertical .split-footer-pane:last-child {
+  border-right: none;
+}
+
+.split-footer--horizontal {
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.split-footer--horizontal .split-footer-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.split-footer-name {
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.split-footer-meta {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
 .status-bar {
   flex-shrink: 0;
   display: flex;
@@ -1356,6 +1381,20 @@ body {
     border-bottom: none;
   }
 
+  .split-footer--vertical {
+    flex-direction: column;
+  }
+
+  .split-footer--vertical .split-footer-pane {
+    padding: 0.35rem 0;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .split-footer--vertical .split-footer-pane:last-child {
+    border-bottom: none;
+  }
+
   .overview {
     padding: 1rem;
   }
@@ -1437,7 +1476,7 @@ body {
     overflow: visible;
   }
 
-  .sidebar, .toolbar, .doc-header, .status-bar, .minimap, .modal-overlay {
+  .sidebar, .toolbar, .doc-header, .status-bar, .split-footer, .minimap, .modal-overlay {
     display: none !important;
   }
 

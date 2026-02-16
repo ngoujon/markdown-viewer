@@ -1126,6 +1126,21 @@ export default function App() {
     return `${n} octet${n !== 1 ? 's' : ''}`;
   };
 
+  const formatDate = (iso) => {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return '—';
+      const day = d.getDate();
+      const month = d.toLocaleDateString('fr-FR', { month: 'long' });
+      const year = d.getFullYear();
+      const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return `${day} ${month} ${year} à ${time}`;
+    } catch {
+      return '—';
+    }
+  };
+
   const kpis = {
     totalFiles: files.length,
     totalSize: files.reduce((acc, f) => acc + (f.size || 0), 0),
@@ -1368,6 +1383,34 @@ export default function App() {
             </>
           )}
         </div>
+        {openTabs.length >= 2 && (() => {
+          const leftFile = files.find((f) => f.path === openTabs[leftTabIndex]);
+          const rightFile = files.find((f) => f.path === openTabs[rightTabIndex]);
+          return (
+            <footer className={`split-footer split-footer--${splitMode}`} role="contentinfo">
+              <div className="split-footer-pane">
+                <span className="split-footer-name">{leftFile?.name ?? openTabs[leftTabIndex]?.split('/').pop() ?? ''}</span>
+                <span className="split-footer-meta">
+                  Taille {formatSize(leftFile?.size)}
+                  {' · '}
+                  Créé le {formatDate(leftFile?.createdAt)}
+                  {' · '}
+                  Modifié le {formatDate(leftFile?.modifiedAt)}
+                </span>
+              </div>
+              <div className="split-footer-pane">
+                <span className="split-footer-name">{rightFile?.name ?? openTabs[rightTabIndex]?.split('/').pop() ?? ''}</span>
+                <span className="split-footer-meta">
+                  Taille {formatSize(rightFile?.size)}
+                  {' · '}
+                  Créé le {formatDate(rightFile?.createdAt)}
+                  {' · '}
+                  Modifié le {formatDate(rightFile?.modifiedAt)}
+                </span>
+              </div>
+            </footer>
+          );
+        })()}
         <footer className="status-bar">
           {openTabs.length >= 2 && (
             <div className="status-bar-split-group">

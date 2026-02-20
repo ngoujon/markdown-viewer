@@ -288,6 +288,8 @@ function ConfirmModal({ open, title, message, confirmLabel, cancelLabel, onConfi
 
 function RenameFileModal({ open, value, onChange, onConfirm, onCancel, renaming }) {
   const inputRef = useRef(null);
+  const valueRef = useRef(value);
+  valueRef.current = value;
 
   useEffect(() => {
     if (!open) return;
@@ -299,13 +301,13 @@ function RenameFileModal({ open, value, onChange, onConfirm, onCancel, renaming 
         onCancel();
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        const v = (value || '').trim();
+        const v = (valueRef.current || '').trim();
         if (v) onConfirm();
       }
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [open, value, onConfirm, onCancel]);
+  }, [open, onConfirm, onCancel]);
 
   if (!open) return null;
   return (

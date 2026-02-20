@@ -84,11 +84,10 @@ function XMarkIcon({ className }) {
   );
 }
 
-function DocumentDuplicateIcon({ className }) {
+function ClipboardDocumentIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M8 7v8a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" />
-      <path d="M4 5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z" />
+      <path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
     </svg>
   );
 }
@@ -1344,7 +1343,7 @@ export default function App() {
                   onClick={(e) => handleDuplicateClick(f.path, f.name, e)}
                   aria-label={`Dupliquer ${f.name}`}
                 >
-                  <DocumentDuplicateIcon className="file-list-action-icon" />
+                  <ClipboardDocumentIcon className="file-list-action-icon" />
                 </button>
                 <button
                   type="button"

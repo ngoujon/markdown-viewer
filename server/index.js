@@ -173,6 +173,54 @@ app.post('/api/files/create', express.json(), async (req, res) => {
   }
 });
 
+app.post('/api/files/duplicate', express.json(), async (req, res) => {
+  const relativePath = req.body?.path;
+  if (!relativePath || typeof relativePath !== 'string' || relativePath.includes('..')) {
+    return res.status(400).json({ error: 'Chemin invalide' });
+  }
+  const filePath = safePath(relativePath);
+  if (!filePath.startsWith(FILES_DIR)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  try {
+    const exists = await fs.access(filePath).then(() => true).catch(() => false);
+    if (!exists) return res.status(404).json({ error: 'Not found' });
+    const content = await fs.readFile(filePath, 'utf-8');
+    const dir = path.dirname(relativePath);
+    const ext = path.extname(relativePath).toLowerCase();
+    const base = path.basename(relativePath, ext);
+    const dirPrefix = dir !== '.' ? `${dir.replace(/\\/g, '/')}/` : '';
+    let candidate = `${dirPrefix}${base} (copie)${ext}`;
+    let destPath = safePath(candidate);
+    let n = 1;
+    while (await fs.access(destPath).then(() => true).catch(() => false)) {
+      n += 1;
+      candidate = `${dirPrefix}${base} (copie ${n})${ext}`;
+      destPath = safePath(candidate);
+    }
+    if (!destPath.startsWith(FILES_DIR)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    await fs.mkdir(path.dirname(destPath), { recursive: true });
+    await fs.writeFile(destPath, content, 'utf-8');
+    const stat = await fs.stat(destPath);
+    const createdAt = (stat.birthtime && stat.birthtime.getTime() > 0 ? stat.birthtime : stat.ctime).toISOString();
+    const modifiedAt = stat.mtime.toISOString();
+    const newRelative = candidate.replace(/\\/g, '/');
+    res.status(201).json({
+      path: newRelative,
+      name: path.basename(newRelative),
+      createdAt,
+      modifiedAt,
+      size: stat.size,
+    });
+  } catch (err) {
+    if (err.code === 'ENOENT') return res.status(404).json({ error: 'Not found' });
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/files/*', async (req, res) => {
   const relativePath = req.params[0];
   if (!relativePath || relativePath.includes('..')) {

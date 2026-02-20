@@ -334,9 +334,9 @@ body {
   background: rgba(247, 118, 142, 0.12);
 }
 
-.file-list-close-tab:hover {
-  color: var(--muted);
-  background: rgba(255, 255, 255, 0.1);
+.file-list-duplicate:hover {
+  color: var(--accent);
+  background: rgba(122, 184, 212, 0.12);
 }
 
 .file-list a {

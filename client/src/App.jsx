@@ -84,6 +84,14 @@ function XMarkIcon({ className }) {
   );
 }
 
+function DocumentDuplicateIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 2.027-1.636 3.675-3.75 3.675-2.114 0-3.75-1.648-3.75-3.675V17.25m0-12.75v3.375c0 2.027 1.636 3.675 3.75 3.675 2.114 0 3.75-1.648 3.75-3.675V17.25M8.25 17.25v3.375c0 2.027-1.636 3.675-3.75 3.675-2.114 0-3.75-1.648-3.75-3.675V17.25m9 0V9.375m0 7.875v-7.875m0 0h.008v-.008H17.25h-.008V9.375m0 7.875h.008v-.008h.008v-.008-.008v-.008h-.008V17.25Z" />
+    </svg>
+  );
+}
+
 function ArrowsPointingInIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
@@ -1053,6 +1061,32 @@ export default function App() {
     setShowRenameFileModal(true);
   };
 
+  const handleDuplicateClick = async (filePath, fileName, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setUploadError(null);
+    try {
+      const r = await fetch(`${API}/files/duplicate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: filePath }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setUploadError(data.error || `Erreur ${r.status}`);
+        return;
+      }
+      fetchFiles();
+      const ext = (fileName.match(/\.(md|txt)$/i)?.[0] || '');
+      const base = (data.name || '').slice(0, -ext.length).replace(/_/g, ' ');
+      setRenameFilePath(data.path);
+      setRenameFileName(base);
+      setShowRenameFileModal(true);
+    } catch (err) {
+      setUploadError(err.message || 'Erreur réseau.');
+    }
+  };
+
   const handleRenameFileSubmit = async () => {
     const name = renameFileName.trim();
     if (!name || !renameFilePath) return;
@@ -1296,21 +1330,15 @@ export default function App() {
                 >
                   {f.name}
                 </a>
-                {isOpen && (
-                  <button
-                    type="button"
-                    className="file-list-action file-list-close-tab"
-                    title="Fermer l'onglet"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      closeTab(tabIndex);
-                    }}
-                    aria-label={`Fermer ${f.name}`}
-                  >
-                    <XMarkIcon className="file-list-action-icon" />
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className="file-list-action file-list-duplicate"
+                  title="Dupliquer ce fichier"
+                  onClick={(e) => handleDuplicateClick(f.path, f.name, e)}
+                  aria-label={`Dupliquer ${f.name}`}
+                >
+                  <DocumentDuplicateIcon className="file-list-action-icon" />
+                </button>
                 <button
                   type="button"
                   className="file-list-action file-list-rename"

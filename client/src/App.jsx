@@ -289,7 +289,11 @@ function ConfirmModal({ open, title, message, confirmLabel, cancelLabel, onConfi
 function RenameFileModal({ open, value, onChange, onConfirm, onCancel, renaming }) {
   const inputRef = useRef(null);
   const valueRef = useRef(value);
+  const onConfirmRef = useRef(onConfirm);
+  const onCancelRef = useRef(onCancel);
   valueRef.current = value;
+  onConfirmRef.current = onConfirm;
+  onCancelRef.current = onCancel;
 
   useEffect(() => {
     if (!open) return;
@@ -298,16 +302,16 @@ function RenameFileModal({ open, value, onChange, onConfirm, onCancel, renaming 
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        onCancel();
+        onCancelRef.current();
       } else if (e.key === 'Enter') {
         e.preventDefault();
         const v = (valueRef.current || '').trim();
-        if (v) onConfirm();
+        if (v) onConfirmRef.current();
       }
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [open, onConfirm, onCancel]);
+  }, [open]);
 
   if (!open) return null;
   return (

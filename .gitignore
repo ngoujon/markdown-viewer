@@ -2,4 +2,5 @@ files/
 node_modules/
 client/dist/
 .DS_Store
+._*
 files/*.md

@@ -29,6 +29,9 @@ COPY files/ /app/files/
 # Server : code source (après le build client pour éviter un cache obsolète)
 COPY server/ server/
 
+# S'assure que tous les fichiers copiés sont lisibles/exécutables si besoin.
+RUN chmod -R a+rX /app && chmod -R a+rX /app/client/dist
+
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV FILES_DIR=/app/files

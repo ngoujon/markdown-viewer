@@ -383,7 +383,9 @@ app.get('/api/export-pdf', async (req, res) => {
   try {
     const raw = await fs.readFile(filePath, 'utf-8');
     const bodyHtml = await marked.parse(raw);
-    const html = getPrintHtml(bodyHtml);
+    const themeParam = typeof req.query.theme === 'string' ? req.query.theme.toLowerCase() : 'light';
+    const theme = themeParam === 'dark' ? 'dark' : 'light';
+    const html = getPrintHtml(bodyHtml, { theme });
 
     const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || null;
     browser = await puppeteer.launch({

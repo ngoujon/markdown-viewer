@@ -628,13 +628,23 @@ body {
   cursor: not-allowed;
 }
 
+/* PDF thème sombre (icône lune) : léger contraste avec le bouton PDF classique */
+.doc-header-btn-pdf-dark {
+  color: var(--accent);
+}
+
+.doc-header-btn-pdf-dark:hover:not(:disabled) {
+  color: var(--accent-hover);
+  background: rgba(122, 184, 212, 0.12);
+}
+
 .doc-header-name {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   font-weight: 600;
   color: var(--text);
-  max-width: calc(100% - 220px);
+  max-width: calc(100% - 280px);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -60,6 +60,15 @@ function ArrowDownTrayIcon({ className }) {
   );
 }
 
+/** Icône lune : PDF thème sombre (fond interface) */
+function MoonIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+    </svg>
+  );
+}
+
 function SplitVerticalIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
@@ -455,7 +464,7 @@ function useHighlightInDocument(containerRef, content, searchQuery) {
   }, [content, searchQuery]);
 }
 
-function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdfLoading, printError, onClose, onScrollPosition, scrollPositionToRestore }) {
+function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, onDownloadPdfDark, pdfLoading, printError, onClose, onScrollPosition, scrollPositionToRestore }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -614,6 +623,20 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, pdf
               <ArrowPathIcon className="doc-header-icon doc-header-icon--spin" />
             ) : (
               <ArrowDownTrayIcon className="doc-header-icon" />
+            )}
+          </button>
+          <button
+            type="button"
+            className="doc-header-btn-icon doc-header-btn-print doc-header-btn-pdf-dark"
+            onClick={() => onDownloadPdfDark(path)}
+            disabled={pdfLoading}
+            title="Télécharger le PDF (thème sombre, comme l’interface)"
+            aria-label="Télécharger le PDF en thème sombre"
+          >
+            {pdfLoading ? (
+              <ArrowPathIcon className="doc-header-icon doc-header-icon--spin" />
+            ) : (
+              <MoonIcon className="doc-header-icon" />
             )}
           </button>
           <button
@@ -981,6 +1004,37 @@ export default function App() {
       const url = URL.createObjectURL(blob);
       const file = files.find((f) => f.path === path);
       const filename = (file?.name || path).replace(/\.(md|txt)$/i, '') + '.pdf';
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setPrintError(err.message || 'Erreur lors de la génération du PDF');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
+  const handleDownloadPdfDark = async (path) => {
+    if (!path) return;
+    setPrintError(null);
+    setPdfLoading(true);
+    const pdfUrl = `${API}/export-pdf?path=${encodeURIComponent(path)}&theme=dark`;
+    try {
+      const res = await fetch(pdfUrl);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Erreur ${res.status}`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const file = files.find((f) => f.path === path);
+      const base = (file?.name || path).replace(/\.(md|txt)$/i, '');
+      const filename = `${base}-sombre.pdf`;
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
@@ -1427,6 +1481,7 @@ export default function App() {
               minimapEnabled={minimapEnabled}
               onPrint={handlePrint}
               onDownloadPdf={handleDownloadPdf}
+              onDownloadPdfDark={handleDownloadPdfDark}
               pdfLoading={pdfLoading}
               printError={printError}
               onClose={() => closeTab(0)}
@@ -1443,6 +1498,7 @@ export default function App() {
                   minimapEnabled={minimapEnabled}
                   onPrint={handlePrint}
                   onDownloadPdf={handleDownloadPdf}
+                  onDownloadPdfDark={handleDownloadPdfDark}
                   pdfLoading={pdfLoading}
                   printError={printError}
                   onClose={() => closeTab(0)}
@@ -1457,6 +1513,7 @@ export default function App() {
                   minimapEnabled={minimapEnabled}
                   onPrint={handlePrint}
                   onDownloadPdf={handleDownloadPdf}
+                  onDownloadPdfDark={handleDownloadPdfDark}
                   pdfLoading={pdfLoading}
                   printError={printError}
                   onClose={() => closeTab(1)}
@@ -1472,6 +1529,7 @@ export default function App() {
                     minimapEnabled={minimapEnabled}
                     onPrint={handlePrint}
                     onDownloadPdf={handleDownloadPdf}
+                    onDownloadPdfDark={handleDownloadPdfDark}
                     pdfLoading={pdfLoading}
                     printError={printError}
                     onClose={() => closeTab(2)}

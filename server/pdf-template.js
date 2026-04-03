@@ -40,12 +40,24 @@ const HTML_DARK_START = `<!DOCTYPE html>
   <style>
     * { box-sizing: border-box; }
     /* Marges PDF Chromium = zone blanche hors HTML : on les met à 0 côté serveur et on simule ici */
-    @page { size: A4; margin: 0; }
-    html { background: #3d434c; }
+    /* Fond de chaque feuille entière (évite le cadre blanc sous le contenu ou entre pages) */
+    @page {
+      size: A4;
+      margin: 0;
+      background: #3d434c;
+    }
+    html {
+      background: #3d434c;
+      min-height: 100%;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
     body {
       margin: 0;
-      /* Remplace les marges PDF (mises à 0 côté Puppeteer) pour toutes les pages */
+      /* Remplace les marges PDF (mises à 0 côté Puppeteer) */
       padding: 15mm;
+      /* Au moins une hauteur A4 : sinon Chromium laisse le bas de page blanc si peu de texte */
+      min-height: 297mm;
       font-family: 'Source Serif 4', Georgia, serif;
       font-size: 11pt;
       line-height: 1.6;
@@ -76,7 +88,8 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .markdown a { color: #8fc9e2; }
     .markdown blockquote { margin: 1rem 0; padding-left: 1rem; border-left: 4px solid #7ab8d4; color: #9ca3ae; }
     .markdown hr { border: none; border-top: 1px solid #5c6570; margin: 1.5rem 0; }
-    .page { padding: 0; background: transparent; }
+    .page { padding: 0; background: #3d434c; min-height: 100%; }
+    .markdown { background: transparent; }
   </style>
 </head>
 <body>

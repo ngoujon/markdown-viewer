@@ -395,6 +395,7 @@ app.get('/api/export-pdf', async (req, res) => {
     });
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'load' });
+    await page.emulateMediaType('print');
 
     // Thème sombre : marges PDF à 0 sinon Chromium les peint en blanc ; l’équivalent 15mm est dans le CSS (.page)
     const pdfMargins =

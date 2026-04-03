@@ -396,11 +396,17 @@ app.get('/api/export-pdf', async (req, res) => {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'load' });
 
+    // Thème sombre : marges PDF à 0 sinon Chromium les peint en blanc ; l’équivalent 15mm est dans le CSS (.page)
+    const pdfMargins =
+      theme === 'dark'
+        ? { top: 0, right: 0, bottom: 0, left: 0 }
+        : { top: '15mm', right: '15mm', bottom: '15mm', left: '15mm' };
+
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       displayHeaderFooter: false,
-      margin: { top: '15mm', right: '15mm', bottom: '15mm', left: '15mm' },
+      margin: pdfMargins,
     });
 
     await browser.close();

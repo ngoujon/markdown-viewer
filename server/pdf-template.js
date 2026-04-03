@@ -39,7 +39,22 @@ const HTML_DARK_START = `<!DOCTYPE html>
   <meta charset="UTF-8" />
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; padding: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 11pt; line-height: 1.6; color: #e8eaed; text-align: justify; background: #3d434c; }
+    /* Marges PDF Chromium = zone blanche hors HTML : on les met à 0 côté serveur et on simule ici */
+    @page { size: A4; margin: 0; }
+    html { background: #3d434c; }
+    body {
+      margin: 0;
+      /* Remplace les marges PDF (mises à 0 côté Puppeteer) pour toutes les pages */
+      padding: 15mm;
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #e8eaed;
+      text-align: justify;
+      background: #3d434c;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
     .markdown h1 { font-size: 1.75rem; font-weight: 600; margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #5c6570; page-break-after: avoid; page-break-before: always; color: #e8eaed; }
     .markdown h1:first-child { page-break-before: auto; }
     .markdown h2 { font-size: 1.35rem; font-weight: 600; margin: 1.5rem 0 0.75rem; page-break-after: avoid; color: #e8eaed; }
@@ -61,7 +76,7 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .markdown a { color: #8fc9e2; }
     .markdown blockquote { margin: 1rem 0; padding-left: 1rem; border-left: 4px solid #7ab8d4; color: #9ca3ae; }
     .markdown hr { border: none; border-top: 1px solid #5c6570; margin: 1.5rem 0; }
-    .page { padding: 0; }
+    .page { padding: 0; background: transparent; }
   </style>
 </head>
 <body>

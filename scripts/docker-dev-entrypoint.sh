@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
-# Synchronise node_modules du volume anonyme avec package.json monté depuis l'hôte
-cd /app/client && npm install
-cd /app/server && npm install
+# Réinstalle depuis le lockfile (corrige un volume node_modules obsolète ou incomplet)
+for dir in client server; do
+  cd "/app/$dir"
+  if [ -f package-lock.json ]; then
+    npm ci
+  else
+    npm install
+  fi
+done
 cd /app && exec npm run dev

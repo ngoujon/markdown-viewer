@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 function ArrowPathIcon({ className }) {
   return (
@@ -126,6 +127,14 @@ const markdownComponents = {
   a: ({ children }) => <span>{children}</span>,
 };
 
+function MarkdownView({ children }) {
+  return (
+    <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+      {children}
+    </ReactMarkdown>
+  );
+}
+
 function DocumentMinimap({ content, viewerRef, visible }) {
   const minimapRef = useRef(null);
   const [scale, setScale] = useState(0.1);
@@ -245,7 +254,7 @@ function DocumentMinimap({ content, viewerRef, visible }) {
         >
           <div className="page minimap-page">
             <div className="markdown">
-              <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown>
+              <MarkdownView>{content}</MarkdownView>
             </div>
           </div>
         </div>
@@ -753,7 +762,7 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, onD
           {!loading && !error && (
             <div className="page">
               <div ref={markdownContentRef} className="markdown">
-                <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown>
+                <MarkdownView>{content}</MarkdownView>
               </div>
             </div>
           )}

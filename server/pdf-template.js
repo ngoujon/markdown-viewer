@@ -102,6 +102,22 @@ const HTML_END = `</div>
 </html>`;
 
 /**
+ * Pied de page Puppeteer (répété sur chaque page PDF).
+ * @param {string} footerText
+ * @param {'light' | 'dark'} theme
+ */
+export function getPdfFooterTemplate(footerText, theme = 'light') {
+  const color = theme === 'dark' ? '#9ca3ae' : '#666666';
+  const bg = theme === 'dark' ? '#3d434c' : '#ffffff';
+  const escaped = footerText
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  return `<div style="width:100%;font-size:8pt;font-family:Georgia,'Source Serif 4',serif;color:${color};background:${bg};padding:0 15mm 4mm;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="flex:1;padding-right:1em;text-align:left;">${escaped}</span><span style="white-space:nowrap;"><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`;
+}
+
+/**
  * @param {string} bodyHtml
  * @param {{ theme?: 'light' | 'dark' }} [options]
  */

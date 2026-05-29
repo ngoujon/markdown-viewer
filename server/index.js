@@ -11,7 +11,8 @@ const noLinksRenderer = new Renderer();
 noLinksRenderer.link = (href, title, text) => text || '';
 marked.use({ renderer: noLinksRenderer });
 import puppeteer from 'puppeteer-core';
-import { getPrintHtml } from './pdf-template.js';
+import { getPrintHtml, getPdfFooterTemplate } from './pdf-template.js';
+import { splitFrontmatter } from './frontmatter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FILES_DIR = process.env.FILES_DIR || path.join(__dirname, '..', 'files');
@@ -369,7 +370,7 @@ app.post('/api/trash/restore', express.json(), async (req, res) => {
   }
 });
 
-// Export PDF sans en-têtes ni pieds de page (génération côté serveur)
+// Export PDF (pied de page et pagination optionnels via frontmatter)
 app.get('/api/export-pdf', async (req, res) => {
   const relativePath = req.query.path;
   if (!relativePath || typeof relativePath !== 'string' || relativePath.includes('..')) {
@@ -382,10 +383,14 @@ app.get('/api/export-pdf', async (req, res) => {
   let browser;
   try {
     const raw = await fs.readFile(filePath, 'utf-8');
-    const bodyHtml = await marked.parse(raw);
+    const { meta, body } = splitFrontmatter(raw);
+    const bodyHtml = await marked.parse(body);
     const themeParam = typeof req.query.theme === 'string' ? req.query.theme.toLowerCase() : 'light';
     const theme = themeParam === 'dark' ? 'dark' : 'light';
     const html = getPrintHtml(bodyHtml, { theme });
+    const pdfFooter = meta.pdfFooter || '';
+    const pdfPaginate = meta.pdfPaginate === 'true' || meta.pdfPaginate === '1' || Boolean(pdfFooter);
+    const useFooter = pdfPaginate && pdfFooter;
 
     const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || null;
     browser = await puppeteer.launch({
@@ -398,15 +403,18 @@ app.get('/api/export-pdf', async (req, res) => {
     await page.emulateMediaType('print');
 
     // Thème sombre : marges PDF à 0 sinon Chromium les peint en blanc ; l’équivalent 15mm est dans le CSS (.page)
+    const bottomMargin = useFooter ? (theme === 'dark' ? '18mm' : '22mm') : theme === 'dark' ? '0' : '15mm';
     const pdfMargins =
       theme === 'dark'
-        ? { top: 0, right: 0, bottom: 0, left: 0 }
-        : { top: '15mm', right: '15mm', bottom: '15mm', left: '15mm' };
+        ? { top: 0, right: 0, bottom: bottomMargin, left: 0 }
+        : { top: '15mm', right: '15mm', bottom: bottomMargin, left: '15mm' };
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
-      displayHeaderFooter: false,
+      displayHeaderFooter: useFooter,
+      headerTemplate: '<div></div>',
+      footerTemplate: useFooter ? getPdfFooterTemplate(pdfFooter, theme) : '<div></div>',
       margin: pdfMargins,
     });
 

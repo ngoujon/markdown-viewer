@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { stripFrontmatter } from './frontmatter';
 
 function ArrowPathIcon({ className }) {
   return (
@@ -495,7 +496,7 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, onD
         if (!r.ok) throw new Error('Fichier introuvable');
         return r.text();
       })
-      .then(setContent)
+      .then((text) => setContent(stripFrontmatter(text)))
       .catch((e) => {
         setError(e.message);
         setContent('');
@@ -515,7 +516,7 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, onD
         if (!r.ok) throw new Error('Fichier introuvable');
         return r.text();
       })
-      .then(setContent)
+      .then((text) => setContent(stripFrontmatter(text)))
       .catch((e) => {
         setError(e.message);
         setContent('');

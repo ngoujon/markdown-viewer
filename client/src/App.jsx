@@ -764,10 +764,10 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, onD
           {loading && <div className="empty">Chargement…</div>}
           {!loading && !error && (
             <div ref={markdownContentRef} className="document-pages">
-              {contentPages.map((pageContent, index) => (
-                <div key={index} className="page">
-                  <div className="markdown">
-                    <MarkdownView>{pageContent}</MarkdownView>
+              {contentPages.map((page, index) => (
+                <div key={index} className={page.compact ? 'page page--compact' : 'page'}>
+                  <div className={page.compact ? 'markdown markdown--compact' : 'markdown'}>
+                    <MarkdownView>{page.content}</MarkdownView>
                   </div>
                 </div>
               ))}

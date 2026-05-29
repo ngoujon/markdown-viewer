@@ -1021,6 +1021,56 @@ body {
   margin-top: 0;
 }
 
+/* Pages offres : espacement vertical réduit (contenu inchangé) */
+.page.page--compact {
+  min-height: auto;
+  padding: 14mm 22mm;
+}
+
+.markdown--compact {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.markdown--compact h2 {
+  font-size: 1.2rem;
+  margin: 0.5rem 0 0.35rem;
+}
+
+.markdown--compact h3 {
+  font-size: 1.02rem;
+  margin: 0.45rem 0 0.2rem;
+}
+
+.markdown--compact p {
+  margin: 0 0 0.45rem;
+}
+
+.markdown--compact ul,
+.markdown--compact ol {
+  margin: 0 0 0.45rem;
+  padding-left: 1.25rem;
+}
+
+.markdown--compact li {
+  margin-bottom: 0.15rem;
+}
+
+.markdown--compact table {
+  margin: 0.35rem 0;
+  font-size: 0.92rem;
+}
+
+.markdown--compact th,
+.markdown--compact td {
+  padding: 0.3rem 0.5rem;
+}
+
+.markdown--compact blockquote {
+  margin: 0.5rem 0;
+  padding-left: 0.75rem;
+}
+
 /* Document page (screen) – plus large que A4 pour une meilleure lisibilité */
 .page {
   width: min(95%, 300mm);

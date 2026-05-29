@@ -387,11 +387,15 @@ app.get('/api/export-pdf', async (req, res) => {
     const raw = await fs.readFile(filePath, 'utf-8');
     const { meta, body } = splitFrontmatter(raw);
     const pageChunks = splitMarkdownByPages(body);
-    const pagesHtml = await Promise.all(pageChunks.map((chunk) => marked.parse(chunk)));
+    const pagesHtml = await Promise.all(pageChunks.map((chunk) => marked.parse(chunk.content)));
     const multiPage = pagesHtml.length > 1;
     const bodyHtml = multiPage
       ? pagesHtml
-          .map((html) => `<div class="page"><div class="markdown">${html}</div></div>`)
+          .map((html, i) => {
+            const pageClass = pageChunks[i].compact ? 'page page--compact' : 'page';
+            const mdClass = pageChunks[i].compact ? 'markdown markdown--compact' : 'markdown';
+            return `<div class="${pageClass}"><div class="${mdClass}">${html}</div></div>`;
+          })
           .join('\n')
       : pagesHtml[0];
     const themeParam = typeof req.query.theme === 'string' ? req.query.theme.toLowerCase() : 'light';

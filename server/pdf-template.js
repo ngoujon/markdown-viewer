@@ -31,6 +31,15 @@ const HTML_LIGHT_START = `<!DOCTYPE html>
     body.paged-document > .page + .page { break-before: page; page-break-before: always; }
     body.paged-document > .page:last-child { break-after: auto; page-break-after: auto; }
     body.paged-document > .page .markdown > h2:first-child { margin-top: 0; }
+    .page--compact .markdown--compact { font-size: 10pt; line-height: 1.38; }
+    .page--compact .markdown--compact h2 { font-size: 1.15rem; margin: 0.45rem 0 0.3rem; }
+    .page--compact .markdown--compact h3 { font-size: 1rem; margin: 0.35rem 0 0.2rem; }
+    .page--compact .markdown--compact p { margin: 0 0 0.4rem; }
+    .page--compact .markdown--compact ul, .page--compact .markdown--compact ol { margin: 0 0 0.4rem; padding-left: 1.2rem; }
+    .page--compact .markdown--compact li { margin-bottom: 0.1rem; }
+    .page--compact .markdown--compact table { margin: 0.35rem 0; font-size: 9.5pt; }
+    .page--compact .markdown--compact th, .page--compact .markdown--compact td { padding: 0.28rem 0.45rem; }
+    .page--compact .markdown--compact blockquote { margin: 0.45rem 0; padding-left: 0.75rem; }
   </style>
 </head>
 <body>`;
@@ -106,6 +115,15 @@ const HTML_DARK_START = `<!DOCTYPE html>
     body.paged-document > .page:last-child { break-after: auto; page-break-after: auto; }
     body.paged-document > .page .markdown > h2:first-child { margin-top: 0; }
     .markdown { background: transparent; }
+    .page--compact .markdown--compact { font-size: 10pt; line-height: 1.38; color: #e8eaed; }
+    .page--compact .markdown--compact h2 { font-size: 1.15rem; margin: 0.45rem 0 0.3rem; }
+    .page--compact .markdown--compact h3 { font-size: 1rem; margin: 0.35rem 0 0.2rem; }
+    .page--compact .markdown--compact p { margin: 0 0 0.4rem; }
+    .page--compact .markdown--compact ul, .page--compact .markdown--compact ol { margin: 0 0 0.4rem; padding-left: 1.2rem; }
+    .page--compact .markdown--compact li { margin-bottom: 0.1rem; }
+    .page--compact .markdown--compact table { margin: 0.35rem 0; font-size: 9.5pt; }
+    .page--compact .markdown--compact th, .page--compact .markdown--compact td { padding: 0.28rem 0.45rem; }
+    .page--compact .markdown--compact blockquote { margin: 0.45rem 0; }
   </style>
 </head>
 <body>`;

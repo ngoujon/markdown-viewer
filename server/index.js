@@ -14,6 +14,7 @@ import puppeteer from 'puppeteer-core';
 import { getPrintHtml, getPdfFooterTemplate } from './pdf-template.js';
 import { splitFrontmatter } from './frontmatter.js';
 import { splitMarkdownByPages } from './page-delimiter.js';
+import { getPuppeteerLaunchOptions } from './chromium.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FILES_DIR = process.env.FILES_DIR || path.join(__dirname, '..', 'files');
@@ -400,12 +401,7 @@ app.get('/api/export-pdf', async (req, res) => {
     const pdfPaginate = meta.pdfPaginate === 'true' || meta.pdfPaginate === '1' || Boolean(pdfFooter);
     const useFooter = pdfPaginate && pdfFooter;
 
-    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || null;
-    browser = await puppeteer.launch({
-      headless: true,
-      ...(executablePath && { executablePath }),
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-    });
+    browser = await puppeteer.launch(getPuppeteerLaunchOptions());
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'load' });
     await page.emulateMediaType('print');

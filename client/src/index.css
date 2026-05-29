@@ -1159,14 +1159,14 @@ body {
   width: 66%;
 }
 
-/* Pages compactes : deux colonnes avec en-têtes (Besoin client, Objections…) */
+/* Pages compactes : deux colonnes avec en-têtes (Besoin client, Objections, Quelle offre…) */
 .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
 .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child {
-  width: 52%;
+  width: 58%;
 }
 .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
 .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child {
-  width: 48%;
+  width: 42%;
 }
 
 .markdown th, .markdown td {

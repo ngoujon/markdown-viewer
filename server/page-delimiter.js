@@ -3,13 +3,13 @@
  *   <!-- mdv:page -->
  *
  * Découpe le document en sections (une section = une page à l’écran et au PDF).
- * Les sections « ## Offre N » et « ## Ce que comprend une prestation… »
- * activent automatiquement la mise en page compacte.
+ * Les sections « ## Offre N », « ## Ce que comprend une prestation… »
+ * et « ### Conseils » activent automatiquement la mise en page compacte.
  */
 export const PAGE_DELIMITER_LINE = /^\s*<!--\s*mdv:page\s*-->\s*$/;
 
 const COMPACT_PAGE_HEADING =
-  /^##\s+(?:Offre\s+\d+|Ce que comprend une prestation(?:\s*\([^)]*\))?)/m;
+  /^##\s+(?:Offre\s+\d+|Ce que comprend une prestation(?:\s*\([^)]*\))?)|^###\s+Conseils\b/m;
 
 /** @param {string} text */
 export function isCompactPageChunk(text) {

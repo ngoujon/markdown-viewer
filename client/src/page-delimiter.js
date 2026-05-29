@@ -5,7 +5,7 @@
 export const PAGE_DELIMITER_LINE = /^\s*<!--\s*mdv:page\s*-->\s*$/;
 
 const COMPACT_PAGE_HEADING =
-  /^##\s+(?:Offre\s+\d+|Ce que comprend une prestation(?:\s*\([^)]*\))?)/m;
+  /^##\s+(?:Offre\s+\d+|Ce que comprend une prestation(?:\s*\([^)]*\))?)|^###\s+Conseils\b/m;
 
 /** @param {string} text */
 export function isCompactPageChunk(text) {

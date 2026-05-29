@@ -398,8 +398,9 @@ app.get('/api/export-pdf', async (req, res) => {
     const theme = themeParam === 'dark' ? 'dark' : 'light';
     const html = getPrintHtml(bodyHtml, { theme, multiPage });
     const pdfFooter = meta.pdfFooter || '';
-    const pdfPaginate = meta.pdfPaginate === 'true' || meta.pdfPaginate === '1' || Boolean(pdfFooter);
-    const useFooter = pdfPaginate && pdfFooter;
+    const pdfPaginate =
+      meta.pdfPaginate === 'true' || meta.pdfPaginate === '1' || Boolean(pdfFooter);
+    const useFooter = Boolean(pdfPaginate && pdfFooter);
 
     browser = await puppeteer.launch(getPuppeteerLaunchOptions());
     const page = await browser.newPage();

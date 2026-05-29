@@ -42,6 +42,7 @@ const HTML_LIGHT_START = `<!DOCTYPE html>
     .page--compact .markdown--compact { font-size: 10pt; line-height: 1.38; }
     .page--compact .markdown--compact h2 { font-size: 1.15rem; margin: 0.45rem 0 0.3rem; }
     .page--compact .markdown--compact h3 { font-size: 1rem; margin: 0.35rem 0 0.2rem; }
+    .page--compact .markdown--compact h4 { font-size: 9.5pt; margin: 0.3rem 0 0.12rem; }
     .page--compact .markdown--compact h2 + h3 { margin-top: 0.12rem; font-size: 9.75pt; }
     .page--compact .markdown--compact h2 + h3 + table { margin-top: 0.15rem; }
     .page--compact .markdown--compact p { margin: 0 0 0.4rem; }
@@ -136,6 +137,7 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .page--compact .markdown--compact { font-size: 10pt; line-height: 1.38; color: #e8eaed; }
     .page--compact .markdown--compact h2 { font-size: 1.15rem; margin: 0.45rem 0 0.3rem; }
     .page--compact .markdown--compact h3 { font-size: 1rem; margin: 0.35rem 0 0.2rem; }
+    .page--compact .markdown--compact h4 { font-size: 9.5pt; margin: 0.3rem 0 0.12rem; }
     .page--compact .markdown--compact h2 + h3 { margin-top: 0.12rem; font-size: 9.75pt; }
     .page--compact .markdown--compact h2 + h3 + table { margin-top: 0.15rem; }
     .page--compact .markdown--compact p { margin: 0 0 0.4rem; }

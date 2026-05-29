@@ -27,6 +27,10 @@ const HTML_LIGHT_START = `<!DOCTYPE html>
     .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child { width: 30%; }
     .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
     .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 70%; }
+    .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
+    .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
+    .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
+    .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 50%; }
     .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
     .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
     .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
@@ -119,6 +123,10 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child { width: 30%; }
     .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
     .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 70%; }
+    .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
+    .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
+    .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
+    .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 50%; }
     .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
     .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
     .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,

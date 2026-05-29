@@ -765,8 +765,25 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, onD
           {!loading && !error && (
             <div ref={markdownContentRef} className="document-pages">
               {contentPages.map((page, index) => (
-                <div key={index} className={page.compact ? 'page page--compact' : 'page'}>
-                  <div className={page.compact ? 'markdown markdown--compact' : 'markdown'}>
+                <div
+                  key={index}
+                  className={[
+                    'page',
+                    page.compact && 'page--compact',
+                    page.conseils && 'page--conseils',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  <div
+                    className={[
+                      'markdown',
+                      page.compact && 'markdown--compact',
+                      page.conseils && 'markdown--conseils',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
                     <MarkdownView>{page.content}</MarkdownView>
                   </div>
                 </div>

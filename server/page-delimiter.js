@@ -16,6 +16,13 @@ export function isCompactPageChunk(text) {
   return COMPACT_PAGE_HEADING.test(text.trim());
 }
 
+const CONSEILS_HEADING = /^##\s+Conseils\b/m;
+
+/** @param {string} text */
+export function isConseilsPageChunk(text) {
+  return CONSEILS_HEADING.test(text.trim());
+}
+
 /** @deprecated Utiliser isCompactPageChunk */
 export function isOfferPageChunk(text) {
   return isCompactPageChunk(text);
@@ -27,7 +34,7 @@ export function isOfferPageChunk(text) {
  */
 export function splitMarkdownByPages(markdown) {
   const lines = markdown.split(/\r?\n/);
-  /** @type {{ content: string, compact: boolean }[]} */
+  /** @type {{ content: string, compact: boolean, conseils: boolean }[]} */
   const chunks = [];
   let current = [];
 
@@ -37,6 +44,7 @@ export function splitMarkdownByPages(markdown) {
       chunks.push({
         content: text,
         compact: isCompactPageChunk(text),
+        conseils: isConseilsPageChunk(text),
       });
     }
     current = [];
@@ -52,5 +60,7 @@ export function splitMarkdownByPages(markdown) {
   flush();
 
   const trimmed = markdown.trim();
-  return chunks.length > 0 ? chunks : [{ content: trimmed, compact: isCompactPageChunk(trimmed) }];
+  return chunks.length > 0
+    ? chunks
+    : [{ content: trimmed, compact: isCompactPageChunk(trimmed), conseils: isConseilsPageChunk(trimmed) }];
 }

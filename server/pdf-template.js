@@ -31,10 +31,14 @@ const HTML_LIGHT_START = `<!DOCTYPE html>
     .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
     .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
     .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 50%; }
-    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
-    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
-    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
-    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 50%; }
+    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
+    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
+    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
+    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child,
+    .page--conseils hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
+    .page--conseils hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
+    .page--conseils hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
+    .page--conseils hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 50%; }
     .markdown th, .markdown td { border: 1px solid #ccc; padding: 0.5rem 0.75rem; text-align: left; }
     .markdown th { background: #f0f0f0; }
     .markdown code { background: #f0f0f0; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
@@ -59,6 +63,21 @@ const HTML_LIGHT_START = `<!DOCTYPE html>
     .page--compact .markdown--compact table { margin: 0.35rem 0; font-size: 9.5pt; }
     .page--compact .markdown--compact th, .page--compact .markdown--compact td { padding: 0.28rem 0.45rem; }
     .page--compact .markdown--compact blockquote { margin: 0.45rem 0; padding-left: 0.75rem; }
+    .page--conseils .markdown--conseils { line-height: 1.45; }
+    .page--conseils .markdown--conseils > h2:first-child { padding-bottom: 0.3rem; margin-bottom: 0.55rem; border-bottom: 1px solid #ccc; }
+    .page--conseils .markdown--conseils blockquote { margin: 0 0 0.7rem; padding: 0.45rem 0.65rem; border-left: 3px solid #5a9ab8; background: #f4f9fb; font-size: 9.25pt; line-height: 1.42; }
+    .page--conseils .markdown--conseils h3 { font-size: 10.5pt; margin: 0.6rem 0 0.3rem; }
+    .page--conseils .markdown--conseils h3:first-of-type { margin-top: 0.25rem; }
+    .page--conseils .markdown--conseils hr { margin: 0.5rem 0; border: none; border-top: 1px solid #ccc; }
+    .page--conseils .markdown--conseils ol { margin: 0.2rem 0 0.45rem; padding-left: 1.25rem; }
+    .page--conseils .markdown--conseils ol li { margin-bottom: 0.08rem; }
+    .page--conseils .markdown--conseils em { font-size: 9pt; color: #555; }
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) { font-size: 8.75pt; }
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) th:first-child,
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) td:first-child { width: 26%; font-weight: 600; text-align: left; }
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) th:not(:first-child),
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) td:not(:first-child) { width: 24.66%; text-align: center; }
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) tbody tr:nth-child(even) td { background: #f7f9fa; }
   </style>
 </head>
 <body>`;
@@ -127,10 +146,14 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
     .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
     .page--compact .markdown--compact h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 50%; }
-    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
-    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
-    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
-    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + h4 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 50%; }
+    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
+    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
+    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
+    .page--compact .markdown--compact table:has(thead th:nth-child(3)) + hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child,
+    .page--conseils hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
+    .page--conseils hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child,
+    .page--conseils hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
+    .page--conseils hr + h3 + table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 50%; }
     .markdown th, .markdown td { border: 1px solid #5c6570; padding: 0.5rem 0.75rem; text-align: left; color: #e8eaed; }
     .markdown th { background: #545c68; }
     .markdown code { background: #4a515c; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: monospace; color: #e8eaed; }
@@ -162,6 +185,19 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .page--compact .markdown--compact table { margin: 0.35rem 0; font-size: 9.5pt; }
     .page--compact .markdown--compact th, .page--compact .markdown--compact td { padding: 0.28rem 0.45rem; }
     .page--compact .markdown--compact blockquote { margin: 0.45rem 0; }
+    .page--conseils .markdown--conseils { line-height: 1.45; color: #e8eaed; }
+    .page--conseils .markdown--conseils > h2:first-child { padding-bottom: 0.3rem; margin-bottom: 0.55rem; border-bottom: 1px solid #5c6570; }
+    .page--conseils .markdown--conseils blockquote { margin: 0 0 0.7rem; padding: 0.45rem 0.65rem; border-left: 3px solid #7ab8d4; background: #454c57; font-size: 9.25pt; line-height: 1.42; color: #e8eaed; }
+    .page--conseils .markdown--conseils h3 { font-size: 10.5pt; margin: 0.6rem 0 0.3rem; color: #e8eaed; }
+    .page--conseils .markdown--conseils hr { margin: 0.5rem 0; border: none; border-top: 1px solid #5c6570; }
+    .page--conseils .markdown--conseils ol { margin: 0.2rem 0 0.45rem; padding-left: 1.25rem; }
+    .page--conseils .markdown--conseils em { font-size: 9pt; color: #9ca3ae; }
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) { font-size: 8.75pt; }
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) th:first-child,
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) td:first-child { width: 26%; font-weight: 600; text-align: left; }
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) th:not(:first-child),
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) td:not(:first-child) { width: 24.66%; text-align: center; }
+    .page--conseils .markdown--conseils table:has(th:nth-child(3)) tbody tr:nth-child(even) td { background: #454c57; }
   </style>
 </head>
 <body>`;

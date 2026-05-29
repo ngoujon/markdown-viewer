@@ -392,8 +392,17 @@ app.get('/api/export-pdf', async (req, res) => {
     const bodyHtml = multiPage
       ? pagesHtml
           .map((html, i) => {
-            const pageClass = pageChunks[i].compact ? 'page page--compact' : 'page';
-            const mdClass = pageChunks[i].compact ? 'markdown markdown--compact' : 'markdown';
+            const chunk = pageChunks[i];
+            const pageClass = ['page', chunk.compact && 'page--compact', chunk.conseils && 'page--conseils']
+              .filter(Boolean)
+              .join(' ');
+            const mdClass = [
+              'markdown',
+              chunk.compact && 'markdown--compact',
+              chunk.conseils && 'markdown--conseils',
+            ]
+              .filter(Boolean)
+              .join(' ');
             return `<div class="${pageClass}"><div class="${mdClass}">${html}</div></div>`;
           })
           .join('\n')

@@ -63,6 +63,13 @@ const HTML_LIGHT_START = `<!DOCTYPE html>
     .page--compact .markdown--compact table { margin: 0.35rem 0; font-size: 9.5pt; }
     .page--compact .markdown--compact th, .page--compact .markdown--compact td { padding: 0.28rem 0.45rem; }
     .page--compact .markdown--compact blockquote { margin: 0.45rem 0; padding-left: 0.75rem; }
+    .page--socle .markdown--socle { font-size: 10.25pt; line-height: 1.52; }
+    .page--socle .markdown--socle > h2:first-child { margin: 0 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid #ccc; font-size: 1.28rem; }
+    .page--socle .markdown--socle > p:first-of-type { margin-bottom: 0.85rem; line-height: 1.55; }
+    .page--socle .markdown--socle h3 { font-size: 11pt; margin: 0.9rem 0 0.4rem; padding-top: 0.15rem; }
+    .page--socle .markdown--socle h3:not(:first-of-type) { margin-top: 1rem; border-top: 1px solid #ccc; padding-top: 0.55rem; }
+    .page--socle .markdown--socle ul { margin: 0.2rem 0 0.55rem; padding-left: 1.4rem; }
+    .page--socle .markdown--socle li { margin-bottom: 0.28rem; line-height: 1.48; }
     .page--conseils .markdown--conseils { line-height: 1.45; }
     .page--conseils .markdown--conseils > h2:first-child { padding-bottom: 0.3rem; margin-bottom: 0.55rem; border-bottom: 1px solid #ccc; }
     .page--conseils .markdown--conseils blockquote { margin: 0 0 0.7rem; padding: 0.45rem 0.65rem; border-left: 3px solid #5a9ab8; background: #f4f9fb; font-size: 9.25pt; line-height: 1.42; }
@@ -185,6 +192,13 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .page--compact .markdown--compact table { margin: 0.35rem 0; font-size: 9.5pt; }
     .page--compact .markdown--compact th, .page--compact .markdown--compact td { padding: 0.28rem 0.45rem; }
     .page--compact .markdown--compact blockquote { margin: 0.45rem 0; }
+    .page--socle .markdown--socle { font-size: 10.25pt; line-height: 1.52; color: #e8eaed; }
+    .page--socle .markdown--socle > h2:first-child { margin: 0 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid #5c6570; font-size: 1.28rem; color: #e8eaed; }
+    .page--socle .markdown--socle > p:first-of-type { margin-bottom: 0.85rem; line-height: 1.55; }
+    .page--socle .markdown--socle h3 { font-size: 11pt; margin: 0.9rem 0 0.4rem; padding-top: 0.15rem; color: #e8eaed; }
+    .page--socle .markdown--socle h3:not(:first-of-type) { margin-top: 1rem; border-top: 1px solid #5c6570; padding-top: 0.55rem; }
+    .page--socle .markdown--socle ul { margin: 0.2rem 0 0.55rem; padding-left: 1.4rem; }
+    .page--socle .markdown--socle li { margin-bottom: 0.28rem; line-height: 1.48; }
     .page--conseils .markdown--conseils { line-height: 1.45; color: #e8eaed; }
     .page--conseils .markdown--conseils > h2:first-child { padding-bottom: 0.3rem; margin-bottom: 0.55rem; border-bottom: 1px solid #5c6570; }
     .page--conseils .markdown--conseils blockquote { margin: 0 0 0.7rem; padding: 0.45rem 0.65rem; border-left: 3px solid #7ab8d4; background: #454c57; font-size: 9.25pt; line-height: 1.42; color: #e8eaed; }

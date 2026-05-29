@@ -3,20 +3,27 @@
  *   <!-- mdv:page -->
  *
  * Découpe le document en sections (une section = une page à l’écran et au PDF).
- * Les sections « ## Offre N », « ## Ce que comprend une prestation… »
- * et « ## Conseils » activent automatiquement la mise en page compacte.
+ * - Offres : mise en page compacte (dense)
+ * - Socle « Ce que comprend une prestation » : mise en page aérée (page--socle)
+ * - Conseils : mise en page dédiée (page--conseils)
  */
 export const PAGE_DELIMITER_LINE = /^\s*<!--\s*mdv:page\s*-->\s*$/;
 
-const COMPACT_PAGE_HEADING =
-  /^##\s+(?:Offre\s+\d+|Ce que comprend une prestation(?:\s*\([^)]*\))?|Conseils\b)/m;
+const OFFRE_HEADING = /^##\s+Offre\s+\d+/m;
+
+const SOCLE_HEADING = /^##\s+Ce que comprend une prestation(?:\s*\([^)]*\))?/m;
+
+const CONSEILS_HEADING = /^##\s+Conseils\b/m;
 
 /** @param {string} text */
 export function isCompactPageChunk(text) {
-  return COMPACT_PAGE_HEADING.test(text.trim());
+  return OFFRE_HEADING.test(text.trim());
 }
 
-const CONSEILS_HEADING = /^##\s+Conseils\b/m;
+/** @param {string} text */
+export function isSoclePageChunk(text) {
+  return SOCLE_HEADING.test(text.trim());
+}
 
 /** @param {string} text */
 export function isConseilsPageChunk(text) {
@@ -30,11 +37,11 @@ export function isOfferPageChunk(text) {
 
 /**
  * @param {string} markdown
- * @returns {{ content: string, compact: boolean }[]}
+ * @returns {{ content: string, compact: boolean, socle: boolean, conseils: boolean }[]}
  */
 export function splitMarkdownByPages(markdown) {
   const lines = markdown.split(/\r?\n/);
-  /** @type {{ content: string, compact: boolean, conseils: boolean }[]} */
+  /** @type {{ content: string, compact: boolean, socle: boolean, conseils: boolean }[]} */
   const chunks = [];
   let current = [];
 
@@ -43,7 +50,8 @@ export function splitMarkdownByPages(markdown) {
     if (text) {
       chunks.push({
         content: text,
-        compact: isCompactPageChunk(text),
+        compact: isCompactPageChunk(text) || isConseilsPageChunk(text),
+        socle: isSoclePageChunk(text),
         conseils: isConseilsPageChunk(text),
       });
     }
@@ -62,5 +70,12 @@ export function splitMarkdownByPages(markdown) {
   const trimmed = markdown.trim();
   return chunks.length > 0
     ? chunks
-    : [{ content: trimmed, compact: isCompactPageChunk(trimmed), conseils: isConseilsPageChunk(trimmed) }];
+    : [
+        {
+          content: trimmed,
+          compact: isCompactPageChunk(trimmed) || isConseilsPageChunk(trimmed),
+          socle: isSoclePageChunk(trimmed),
+          conseils: isConseilsPageChunk(trimmed),
+        },
+      ];
 }

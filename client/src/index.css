@@ -1085,6 +1085,56 @@ body {
   padding-left: 0.75rem;
 }
 
+/* Page socle commun — plus aéré que les offres, sans excès */
+.page.page--socle {
+  min-height: auto;
+  padding: 18mm 24mm;
+}
+
+.markdown--socle {
+  font-size: 0.98rem;
+  line-height: 1.52;
+}
+
+.markdown--socle > h2:first-child {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 1.28rem;
+}
+
+.markdown--socle > p:first-of-type {
+  margin-bottom: 0.85rem;
+  line-height: 1.55;
+}
+
+.markdown--socle h3 {
+  font-size: 1.08rem;
+  margin: 0.9rem 0 0.4rem;
+  padding-top: 0.15rem;
+}
+
+.markdown--socle h3:not(:first-of-type) {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.55rem;
+}
+
+.markdown--socle ul {
+  margin: 0.2rem 0 0.55rem;
+  padding-left: 1.4rem;
+}
+
+.markdown--socle li {
+  margin-bottom: 0.28rem;
+  line-height: 1.48;
+}
+
+.markdown--socle li:last-child {
+  margin-bottom: 0;
+}
+
 /* Page Conseils : lisibilité renforcée */
 .page.page--conseils {
   padding: 16mm 20mm;

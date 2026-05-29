@@ -770,6 +770,7 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, onD
                   className={[
                     'page',
                     page.compact && 'page--compact',
+                    page.socle && 'page--socle',
                     page.conseils && 'page--conseils',
                   ]
                     .filter(Boolean)
@@ -779,6 +780,7 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, onD
                     className={[
                       'markdown',
                       page.compact && 'markdown--compact',
+                      page.socle && 'markdown--socle',
                       page.conseils && 'markdown--conseils',
                     ]
                       .filter(Boolean)

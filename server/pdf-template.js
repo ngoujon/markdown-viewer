@@ -24,9 +24,9 @@ const HTML_LIGHT_START = `<!DOCTYPE html>
     .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) th:last-child,
     .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) td:last-child { width: 66%; }
     .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
-    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child { width: 58%; }
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child { width: 38%; }
     .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
-    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 42%; }
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 62%; }
     .markdown th, .markdown td { border: 1px solid #ccc; padding: 0.5rem 0.75rem; text-align: left; }
     .markdown th { background: #f0f0f0; }
     .markdown code { background: #f0f0f0; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
@@ -112,9 +112,9 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) th:last-child,
     .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) td:last-child { width: 66%; }
     .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
-    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child { width: 58%; }
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child { width: 38%; }
     .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
-    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 42%; }
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 62%; }
     .markdown th, .markdown td { border: 1px solid #5c6570; padding: 0.5rem 0.75rem; text-align: left; color: #e8eaed; }
     .markdown th { background: #545c68; }
     .markdown code { background: #4a515c; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: monospace; color: #e8eaed; }

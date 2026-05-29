@@ -1162,11 +1162,11 @@ body {
 /* Pages compactes : deux colonnes avec en-têtes (Besoin client, Objections, Quelle offre…) */
 .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
 .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child {
-  width: 58%;
+  width: 38%;
 }
 .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
 .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child {
-  width: 42%;
+  width: 62%;
 }
 
 .markdown th, .markdown td {

@@ -16,9 +16,17 @@ const HTML_LIGHT_START = `<!DOCTYPE html>
     .markdown table { width: 100%; border-collapse: collapse; margin: 1rem 0; page-break-inside: avoid; }
     .markdown table:has(td:nth-child(2):last-child) { table-layout: fixed; }
     .markdown table:has(td:nth-child(2):last-child) td:first-child,
-    .markdown table:has(td:nth-child(2):last-child) th:first-child,
+    .markdown table:has(td:nth-child(2):last-child) th:first-child { width: 40%; }
     .markdown table:has(td:nth-child(2):last-child) td:last-child,
-    .markdown table:has(td:nth-child(2):last-child) th:last-child { width: 50%; }
+    .markdown table:has(td:nth-child(2):last-child) th:last-child { width: 60%; }
+    .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) th:first-child,
+    .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) td:first-child { width: 34%; }
+    .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) th:last-child,
+    .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) td:last-child { width: 66%; }
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child { width: 52%; }
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 48%; }
     .markdown th, .markdown td { border: 1px solid #ccc; padding: 0.5rem 0.75rem; text-align: left; }
     .markdown th { background: #f0f0f0; }
     .markdown code { background: #f0f0f0; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
@@ -95,9 +103,17 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .markdown table { width: 100%; border-collapse: collapse; margin: 1rem 0; page-break-inside: avoid; }
     .markdown table:has(td:nth-child(2):last-child) { table-layout: fixed; }
     .markdown table:has(td:nth-child(2):last-child) td:first-child,
-    .markdown table:has(td:nth-child(2):last-child) th:first-child,
+    .markdown table:has(td:nth-child(2):last-child) th:first-child { width: 40%; }
     .markdown table:has(td:nth-child(2):last-child) td:last-child,
-    .markdown table:has(td:nth-child(2):last-child) th:last-child { width: 50%; }
+    .markdown table:has(td:nth-child(2):last-child) th:last-child { width: 60%; }
+    .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) th:first-child,
+    .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) td:first-child { width: 34%; }
+    .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) th:last-child,
+    .page--compact .markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) td:last-child { width: 66%; }
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child { width: 52%; }
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
+    .page--compact .markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child { width: 48%; }
     .markdown th, .markdown td { border: 1px solid #5c6570; padding: 0.5rem 0.75rem; text-align: left; color: #e8eaed; }
     .markdown th { background: #545c68; }
     .markdown code { background: #4a515c; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: monospace; color: #e8eaed; }

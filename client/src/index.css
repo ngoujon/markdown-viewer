@@ -1131,15 +1131,37 @@ body {
   margin: 1rem 0;
 }
 
-/* Tableaux à 2 colonnes : répartition 50/50 pour les champs à remplir */
+/* Tableaux à 2 colonnes */
 .markdown table:has(td:nth-child(2):last-child) {
   table-layout: fixed;
 }
 .markdown table:has(td:nth-child(2):last-child) td:first-child,
-.markdown table:has(td:nth-child(2):last-child) th:first-child,
+.markdown table:has(td:nth-child(2):last-child) th:first-child {
+  width: 40%;
+}
 .markdown table:has(td:nth-child(2):last-child) td:last-child,
 .markdown table:has(td:nth-child(2):last-child) th:last-child {
-  width: 50%;
+  width: 60%;
+}
+
+/* Pages compactes (offres) : clé/valeur « En bref » — libellé court à gauche */
+.markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) th:first-child,
+.markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) td:first-child {
+  width: 34%;
+}
+.markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) th:last-child,
+.markdown--compact table:has(thead th:first-child:empty):has(td:nth-child(2):last-child) td:last-child {
+  width: 66%;
+}
+
+/* Pages compactes : deux colonnes avec en-têtes (Besoin client, Objections…) */
+.markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:first-child,
+.markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:first-child {
+  width: 52%;
+}
+.markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) th:last-child,
+.markdown--compact table:has(td:nth-child(2):last-child):not(:has(thead th:first-child:empty)) td:last-child {
+  width: 48%;
 }
 
 .markdown th, .markdown td {

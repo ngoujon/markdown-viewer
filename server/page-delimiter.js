@@ -3,15 +3,22 @@
  *   <!-- mdv:page -->
  *
  * Découpe le document en sections (une section = une page à l’écran et au PDF).
- * Les sections « ## Offre N » activent automatiquement la mise en page compacte.
+ * Les sections « ## Offre N » et « ## Ce que comprend une prestation… »
+ * activent automatiquement la mise en page compacte.
  */
 export const PAGE_DELIMITER_LINE = /^\s*<!--\s*mdv:page\s*-->\s*$/;
 
-const OFFRE_HEADING = /^##\s+Offre\s+\d+/m;
+const COMPACT_PAGE_HEADING =
+  /^##\s+(?:Offre\s+\d+|Ce que comprend une prestation(?:\s*\([^)]*\))?)/m;
 
 /** @param {string} text */
+export function isCompactPageChunk(text) {
+  return COMPACT_PAGE_HEADING.test(text.trim());
+}
+
+/** @deprecated Utiliser isCompactPageChunk */
 export function isOfferPageChunk(text) {
-  return OFFRE_HEADING.test(text.trim());
+  return isCompactPageChunk(text);
 }
 
 /**
@@ -29,7 +36,7 @@ export function splitMarkdownByPages(markdown) {
     if (text) {
       chunks.push({
         content: text,
-        compact: isOfferPageChunk(text),
+        compact: isCompactPageChunk(text),
       });
     }
     current = [];
@@ -45,5 +52,5 @@ export function splitMarkdownByPages(markdown) {
   flush();
 
   const trimmed = markdown.trim();
-  return chunks.length > 0 ? chunks : [{ content: trimmed, compact: isOfferPageChunk(trimmed) }];
+  return chunks.length > 0 ? chunks : [{ content: trimmed, compact: isCompactPageChunk(trimmed) }];
 }

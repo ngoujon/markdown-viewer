@@ -1011,6 +1011,16 @@ body {
   gap: 0;
 }
 
+/* Une section mdv:page = une carte écran ; sauts renforcés à l’impression */
+.document-pages > .page + .page {
+  break-before: page;
+  page-break-before: always;
+}
+
+.document-pages > .page .markdown > h2:first-child {
+  margin-top: 0;
+}
+
 /* Document page (screen) – plus large que A4 pour une meilleure lisibilité */
 .page {
   width: min(95%, 300mm);

@@ -27,8 +27,10 @@ const HTML_LIGHT_START = `<!DOCTYPE html>
     .markdown a { color: #2563eb; }
     .page { padding: 0; }
     body.paged-document { margin: 0; padding: 0; }
-    body.paged-document > .page { page-break-after: always; }
-    body.paged-document > .page:last-child { page-break-after: auto; }
+    body.paged-document > .page { break-after: page; page-break-after: always; }
+    body.paged-document > .page + .page { break-before: page; page-break-before: always; }
+    body.paged-document > .page:last-child { break-after: auto; page-break-after: auto; }
+    body.paged-document > .page .markdown > h2:first-child { margin-top: 0; }
   </style>
 </head>
 <body>`;
@@ -94,8 +96,15 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .markdown blockquote { margin: 1rem 0; padding-left: 1rem; border-left: 4px solid #7ab8d4; color: #9ca3ae; }
     .markdown hr { border: none; border-top: 1px solid #5c6570; margin: 1.5rem 0; }
     body.paged-document { padding: 0; min-height: auto; }
-    .page { padding: 15mm; background: #3d434c; min-height: 297mm; page-break-after: always; }
-    .page:last-child { page-break-after: auto; }
+    body.paged-document > .page {
+      padding: 15mm;
+      background: #3d434c;
+      break-after: page;
+      page-break-after: always;
+    }
+    body.paged-document > .page + .page { break-before: page; page-break-before: always; }
+    body.paged-document > .page:last-child { break-after: auto; page-break-after: auto; }
+    body.paged-document > .page .markdown > h2:first-child { margin-top: 0; }
     .markdown { background: transparent; }
   </style>
 </head>

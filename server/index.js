@@ -414,14 +414,20 @@ app.get('/api/export-pdf', async (req, res) => {
         ? { top: 0, right: 0, bottom: bottomMargin, left: 0 }
         : { top: '15mm', right: '15mm', bottom: bottomMargin, left: '15mm' };
 
-    const pdfBuffer = await page.pdf({
+    /** Options PDF : booléens stricts (Chromium rejette une chaîne pour displayHeaderFooter). */
+    const pdfOptions = {
       format: 'A4',
       printBackground: true,
-      displayHeaderFooter: useFooter,
-      headerTemplate: '<div></div>',
-      footerTemplate: useFooter ? getPdfFooterTemplate(pdfFooter, theme) : '<div></div>',
+      displayHeaderFooter: false,
       margin: pdfMargins,
-    });
+    };
+    if (useFooter) {
+      pdfOptions.displayHeaderFooter = true;
+      pdfOptions.headerTemplate = '<div></div>';
+      pdfOptions.footerTemplate = getPdfFooterTemplate(pdfFooter, theme);
+    }
+
+    const pdfBuffer = await page.pdf(pdfOptions);
 
     await browser.close();
     browser = null;

@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { stripFrontmatter } from './frontmatter';
+import { splitMarkdownByPages } from './page-delimiter';
 
 function ArrowPathIcon({ className }) {
   return (
@@ -486,6 +487,7 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, onD
   const viewerRef = useRef(null);
   const markdownContentRef = useRef(null);
   const currentFile = files.find((f) => f.path === path);
+  const contentPages = useMemo(() => splitMarkdownByPages(content), [content]);
 
   const refreshContent = useCallback(() => {
     if (!path) return;
@@ -761,10 +763,14 @@ function DocumentPane({ path, files, minimapEnabled, onPrint, onDownloadPdf, onD
           {error && <div className="error">{error}</div>}
           {loading && <div className="empty">Chargement…</div>}
           {!loading && !error && (
-            <div className="page">
-              <div ref={markdownContentRef} className="markdown">
-                <MarkdownView>{content}</MarkdownView>
-              </div>
+            <div ref={markdownContentRef} className="document-pages">
+              {contentPages.map((pageContent, index) => (
+                <div key={index} className="page">
+                  <div className="markdown">
+                    <MarkdownView>{pageContent}</MarkdownView>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

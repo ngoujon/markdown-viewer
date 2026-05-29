@@ -1004,6 +1004,13 @@ body {
   color: var(--accent);
 }
 
+.document-pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
 /* Document page (screen) – plus large que A4 pour une meilleure lisibilité */
 .page {
   width: min(95%, 300mm);
@@ -1537,6 +1544,10 @@ body {
   .viewer {
     padding: 0;
     overflow: visible;
+  }
+
+  .document-pages {
+    display: block;
   }
 
   .page {

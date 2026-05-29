@@ -26,9 +26,14 @@ const HTML_LIGHT_START = `<!DOCTYPE html>
     .markdown pre code { background: none; padding: 0; }
     .markdown a { color: #2563eb; }
     .page { padding: 0; }
+    body.paged-document { margin: 0; padding: 0; }
+    body.paged-document > .page { page-break-after: always; }
+    body.paged-document > .page:last-child { page-break-after: auto; }
   </style>
 </head>
-<body>
+<body>`;
+
+const HTML_LIGHT_SINGLE_PAGE = `
   <div class="page">
     <div class="markdown">`;
 
@@ -88,18 +93,24 @@ const HTML_DARK_START = `<!DOCTYPE html>
     .markdown a { color: #8fc9e2; }
     .markdown blockquote { margin: 1rem 0; padding-left: 1rem; border-left: 4px solid #7ab8d4; color: #9ca3ae; }
     .markdown hr { border: none; border-top: 1px solid #5c6570; margin: 1.5rem 0; }
-    .page { padding: 0; background: #3d434c; min-height: 100%; }
+    body.paged-document { padding: 0; min-height: auto; }
+    .page { padding: 15mm; background: #3d434c; min-height: 297mm; page-break-after: always; }
+    .page:last-child { page-break-after: auto; }
     .markdown { background: transparent; }
   </style>
 </head>
-<body>
+<body>`;
+
+const HTML_DARK_SINGLE_PAGE = `
   <div class="page">
     <div class="markdown">`;
 
-const HTML_END = `</div>
-  </div>
+const HTML_END = `
 </body>
 </html>`;
+
+const HTML_SINGLE_PAGE_END = `</div>
+  </div>`;
 
 /**
  * Pied de page Puppeteer (répété sur chaque page PDF).
@@ -119,10 +130,15 @@ export function getPdfFooterTemplate(footerText, theme = 'light') {
 
 /**
  * @param {string} bodyHtml
- * @param {{ theme?: 'light' | 'dark' }} [options]
+ * @param {{ theme?: 'light' | 'dark', multiPage?: boolean }} [options]
  */
 export function getPrintHtml(bodyHtml, options = {}) {
   const theme = options.theme === 'dark' ? 'dark' : 'light';
   const start = theme === 'dark' ? HTML_DARK_START : HTML_LIGHT_START;
-  return start + bodyHtml + HTML_END;
+  if (options.multiPage) {
+    const startPaged = start.replace('<body>', '<body class="paged-document">');
+    return startPaged + bodyHtml + HTML_END;
+  }
+  const single = theme === 'dark' ? HTML_DARK_SINGLE_PAGE : HTML_LIGHT_SINGLE_PAGE;
+  return start + single + bodyHtml + HTML_SINGLE_PAGE_END + HTML_END;
 }

@@ -13,6 +13,7 @@ marked.use({ renderer: noLinksRenderer });
 import puppeteer from 'puppeteer-core';
 import { getPrintHtml, getPdfFooterTemplate } from './pdf-template.js';
 import { splitFrontmatter } from './frontmatter.js';
+import { splitMarkdownByPages } from './page-delimiter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FILES_DIR = process.env.FILES_DIR || path.join(__dirname, '..', 'files');
@@ -384,10 +385,17 @@ app.get('/api/export-pdf', async (req, res) => {
   try {
     const raw = await fs.readFile(filePath, 'utf-8');
     const { meta, body } = splitFrontmatter(raw);
-    const bodyHtml = await marked.parse(body);
+    const pageChunks = splitMarkdownByPages(body);
+    const pagesHtml = await Promise.all(pageChunks.map((chunk) => marked.parse(chunk)));
+    const multiPage = pagesHtml.length > 1;
+    const bodyHtml = multiPage
+      ? pagesHtml
+          .map((html) => `<div class="page"><div class="markdown">${html}</div></div>`)
+          .join('\n')
+      : pagesHtml[0];
     const themeParam = typeof req.query.theme === 'string' ? req.query.theme.toLowerCase() : 'light';
     const theme = themeParam === 'dark' ? 'dark' : 'light';
-    const html = getPrintHtml(bodyHtml, { theme });
+    const html = getPrintHtml(bodyHtml, { theme, multiPage });
     const pdfFooter = meta.pdfFooter || '';
     const pdfPaginate = meta.pdfPaginate === 'true' || meta.pdfPaginate === '1' || Boolean(pdfFooter);
     const useFooter = pdfPaginate && pdfFooter;

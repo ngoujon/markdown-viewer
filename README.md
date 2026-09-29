@@ -1,108 +1,83 @@
-# Lecteur Markdown
+# Markdown Viewer
 
-Application web pour lire des fichiers Markdown comme des pages : liste des fichiers, rendu HTML et export PDF (génération côté serveur via Chromium/Puppeteer). Idéal pour consulter des CGV, documentations ou notes au format Markdown et les imprimer ou enregistrer en PDF.
+A small web app to browse, read and print Markdown files as clean, paginated documents. It lists every `.md` / `.txt` file in a folder, renders them as HTML and exports them to PDF on the server side with headless Chromium (Puppeteer). Handy for terms of service, documentation or notes that you want to read comfortably and print.
 
-## Fonctionnalités
+> The UI is in French.
 
-- **Liste des fichiers** : affichage de tous les `.md` et `.txt` du dossier `files` (y compris dans les sous-dossiers)
-- **Corbeille** : les fichiers supprimés sont déplacés dans une corbeille et peuvent être restaurés ; en cas de conflit de nom, un suffixe `_restored_` + datetime est ajouté
-- **Rendu Markdown** : affichage en HTML avec `react-markdown`
-- **Export PDF** : bouton « Imprimer » qui génère un PDF côté serveur (Puppeteer/Chromium) et ouvre une fenêtre pour imprimer ou enregistrer en PDF
-- **Impression** : les titres de niveau 1 (`#`) provoquent un saut de page pour un rendu type chapitres
+## Screenshots
+
+*Screenshots use made-up sample documents.*
+
+| Overview | Document |
+| --- | --- |
+| ![Overview](docs/screenshots/overview.png) | ![Rendered document](docs/screenshots/document.png) |
+
+## Features
+
+- **File list** of all `.md` and `.txt` files in the `files/` folder (sub-folders included), with full-text search.
+- **Markdown rendering** with `react-markdown` (GFM tables, task lists, code blocks), front matter support and a minimap.
+- **PDF export**: the *Print* button generates a PDF on the server (Puppeteer/Chromium). Level-1 headings (`#`) start a new page; `<!-- mdv:page -->` forces a page break; the `pdfFooter` front-matter key sets the footer.
+- **Trash**: deleted files go to a trash and can be restored (a `_restored_<datetime>` suffix is added on name conflicts).
+- Upload, rename and copy files from the sidebar; light and dark themes.
 
 ## Stack
 
-- **Backend** : Node.js 20 + Express (liste et contenu des `.md`, export PDF)
-- **Frontend** : React 18 + Vite + react-markdown
-- **PDF** : Puppeteer (Chromium) pour la génération serveur
-- **Conteneur** : Docker + docker-compose
+- **Backend**: Node.js 20 + Express
+- **Frontend**: React 18 + Vite + react-markdown
+- **PDF**: Puppeteer (Chromium)
+- **Container**: Docker + Docker Compose
 
-## Prérequis
+## Getting started
 
-- **Avec Docker** : Docker et Docker Compose
-- **Sans Docker** : Node.js 20+ et npm
+### With Docker (recommended)
 
-## Installation
+1. Put your Markdown files in a `files/` folder at the repository root (it is git-ignored).
+2. Start the dev stack (hot reload):
 
-### Cloner le projet
+   ```bash
+   docker compose up --build
+   ```
 
-```bash
-git clone <url-du-repo>
-cd markdown-viewer
-```
+3. Open <http://localhost:3001>, pick a file and use **Imprimer** to generate the PDF. In the browser print dialog, untick "Headers and footers" to hide the URL and date.
 
-### Option 1 : Lancer avec Docker (recommandé pour localhost)
+Production build: `docker compose -f docker-compose.prod.yml up --build`.
 
-`docker compose up` démarre `npm run dev` avec hot reload — les modifications sont immédiatement visibles.
-
-1. Placez vos fichiers Markdown dans le dossier **`files`** à la racine (créer le dossier si besoin).
-2. Démarrer :
+### Without Docker
 
 ```bash
-docker compose up --build
-# ou : npm run docker:up
-```
-
-3. Ouvrir **http://localhost:3001**. Toute modification dans `client/` ou `server/` est reflétée instantanément.
-4. Choisir un fichier dans la liste, puis utiliser le bouton **« Imprimer »** pour générer un PDF et l’ouvrir (impression ou enregistrement en PDF). Dans la fenêtre d’impression du navigateur, décocher « En-têtes et pieds de page » pour éviter URL, date et numéros de page.
-
-**Mode production** (build statique, pour déploiement) : `docker compose -f docker-compose.prod.yml up --build`
-
-### Option 2 : Développement local (sans Docker)
-
-1. Créer le dossier `files` à la racine et y mettre vos fichiers `.md`.
-
-2. Installer les dépendances et lancer client + serveur :
-
-```bash
-npm install && cd client && npm install && cd ../server && npm install && cd ..
+npm install && (cd client && npm install) && (cd server && npm install)
 npm run dev
 ```
 
-Le client tourne sur **http://localhost:3001** et le serveur sur **http://localhost:3002** (proxy Vite). Les modifications sont visibles immédiatement grâce au hot reload.
+The client runs on <http://localhost:3001> and the API on port 3002 (proxied by Vite). `npm run start` builds the client and serves everything from the Node server. PDF export needs Chromium/Chrome on the machine; set `PUPPETEER_EXECUTABLE_PATH` if needed.
 
-3. Ouvrir **http://localhost:3001**. Les fichiers sont lus depuis le dossier `files` à la racine.
+## Configuration
 
-**Note** : Si Docker tourne déjà sur le port 3001, arrêtez-le (`docker compose down`) avant de lancer `npm run dev` pour éviter un conflit de port.
-
-Production locale (même version que Docker) : `npm run start` (build puis serveur sur **http://localhost:3001**).
-
-**Note** : L’export PDF en local nécessite Chromium/Chrome installé sur la machine. Avec `puppeteer-core`, définir éventuellement `PUPPETEER_EXECUTABLE_PATH` vers l’exécutable Chromium/Chrome.
-
-## Variables d’environnement
-
-| Variable | Description | Défaut |
-|----------|-------------|--------|
-| `PORT` | Port du serveur | `3002` (dev) / `3001` (prod local) / `3000` (Docker) |
-| `FILES_DIR` | Dossier des fichiers Markdown | `../files` (relatif au serveur) ou `/app/files` (Docker) |
-| `STATIC_DIR` | Dossier du client buildé (production) | `../client/dist` ou `/app/client/dist` |
-| `PUPPETEER_EXECUTABLE_PATH` | Chemin vers Chromium/Chrome (export PDF) | non défini (Puppeteer utilise son binaire) |
-
-## Structure du projet
-
-```
-markdown-viewer/
-├── files/              # Vos fichiers .md (monté en volume avec Docker)
-├── client/             # Application React (Vite)
-│   ├── src/
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   └── vite.config.js  # proxy /api → serveur
-├── server/             # API Express
-│   ├── index.js        # routes /api/files, /api/files/*, /api/export-pdf
-│   └── pdf-template.js # template HTML pour le PDF
-├── Dockerfile          # Production (build statique)
-├── Dockerfile.dev      # Développement (npm run dev, hot reload)
-├── docker-compose.yml  # Par défaut : mode dev (npm run dev)
-└── docker-compose.prod.yml  # Production (build statique)
-```
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Server port | `3002` (dev) / `3001` (local prod) / `3000` (Docker) |
+| `FILES_DIR` | Folder containing the Markdown files | `../files` or `/app/files` (Docker) |
+| `STATIC_DIR` | Built client folder (production) | `../client/dist` |
+| `PUPPETEER_EXECUTABLE_PATH` | Chromium/Chrome path for PDF export | unset |
 
 ## API
 
-- `GET /api/files` : liste des fichiers `.md` et `.txt`
-- `GET /api/files/:path` : contenu brut du fichier
-- `DELETE /api/files/:path` : déplacer dans la corbeille
-- `GET /api/trash` : liste des fichiers dans la corbeille
-- `POST /api/trash/restore` : restaurer un fichier (body `{ path }`)
-- `GET /api/export-pdf?path=...` : génération et téléchargement du PDF (Puppeteer)
+- `GET /api/files` — list `.md` and `.txt` files
+- `GET /api/files/:path` — raw file content
+- `DELETE /api/files/:path` — move to trash
+- `GET /api/trash` — list trashed files
+- `POST /api/trash/restore` — restore a file (`{ path }`)
+- `GET /api/export-pdf?path=...` — generate and download the PDF
+
+## Project structure
+
+```
+markdown-viewer/
+├── files/                  # your .md files (git-ignored, mounted as a Docker volume)
+├── client/                 # React app (Vite)
+├── server/                 # Express API + PDF template
+├── Dockerfile              # production image
+├── Dockerfile.dev          # dev image (hot reload)
+├── docker-compose.yml      # dev stack
+└── docker-compose.prod.yml # production stack
+```
